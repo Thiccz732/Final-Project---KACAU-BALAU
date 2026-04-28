@@ -4,15 +4,19 @@ using UnityEngine.InputSystem;
 public class PlayerMovement : MonoBehaviour
 {
     public float speed = 5f;
-    private Rigidbody2D rb;
+    public GameObject bulletPrefab; // Taruh prefab peluru di sini via Inspector
+    public Transform shootPoint;  // Titik keluar peluru (ujung senjata/tengah player)
 
-    // Kita buat referensi ke file Input Action kamu
+    private Rigidbody2D rb;
     private InputSystem_Actions controls;
 
     void Awake()
     {
         rb = GetComponent<Rigidbody2D>();
         controls = new InputSystem_Actions();
+
+        // Mendaftarkan fungsi OnAttack saat tombol ditekan
+        controls.Player.Attack.performed += ctx => Shoot();
     }
 
     void OnEnable() => controls.Enable();
@@ -20,11 +24,15 @@ public class PlayerMovement : MonoBehaviour
 
     void FixedUpdate()
     {
-        // Langsung baca nilai dari Input Action setiap frame fisika
-        // "Move" adalah nama action di dalam file InputSystem_Actions kamu
         Vector2 moveInput = controls.Player.Move.ReadValue<Vector2>();
-
-        // Gerakan mulus tanpa tersendat
         rb.linearVelocity = moveInput * speed;
+    }
+
+    void Shoot()
+    {
+        if (bulletPrefab != null && shootPoint != null)
+        {
+            Instantiate(bulletPrefab, shootPoint.position, shootPoint.rotation);
+        }
     }
 }
