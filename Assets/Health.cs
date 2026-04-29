@@ -1,5 +1,6 @@
 using UnityEngine;
-using TMPro; // Dibutuhkan untuk menampilkan UI darah
+using TMPro;
+using System.Collections; // Dibutuhkan untuk IEnumerator
 
 public class Health : MonoBehaviour
 {
@@ -8,33 +9,53 @@ public class Health : MonoBehaviour
     private int currentHealth;
 
     [Header("Settings")]
-    public bool isPlayer; // Centang di Inspector jika ini adalah Player
-    public TextMeshProUGUI healthText; // Taruk objek Text UI ke sini (hanya untuk Player)
+    public bool isPlayer;
+    public TextMeshProUGUI healthText;
+
+    [Header("I-Frames (Hanya Player)")]
+    public float invincibilityDuration = 1f; // Durasi kebal setelah kena hit
+    private bool isInvincible = false;
 
     void Start()
     {
         currentHealth = maxHealth;
-        if (isPlayer)
-        {
-            UpdateUI();
-        }
+        if (isPlayer) UpdateUI();
     }
 
     public void TakeDamage(int damage)
     {
+        // Jika sedang masa kebal, jangan kurangi darah
+        if (isInvincible) return;
+
         currentHealth -= damage;
+
+        // Proteksi agar darah tidak minus
+        if (currentHealth < 0) currentHealth = 0;
 
         if (isPlayer)
         {
             UpdateUI();
+            StartCoroutine(BecomeInvincible());
         }
-
-        Debug.Log(gameObject.name + " terkena damage! Sisa darah: " + currentHealth);
 
         if (currentHealth <= 0)
         {
             Die();
         }
+    }
+
+    // Coroutine untuk membuat player kebal sementara
+    private IEnumerator BecomeInvincible()
+    {
+        isInvincible = true;
+
+        // Opsional: Kamu bisa tambahkan efek kedip-kedip sprite di sini
+        Debug.Log("Player sedang kebal...");
+
+        yield return new WaitForSeconds(invincibilityDuration);
+
+        isInvincible = false;
+        Debug.Log("Masa kebal habis.");
     }
 
     void UpdateUI()
@@ -45,20 +66,16 @@ public class Health : MonoBehaviour
         }
     }
 
-    // Menggunakan OnCollisionEnter2D (Jika Collider TIDAK dicentang Is Trigger)
     private void OnCollisionEnter2D(Collision2D collision)
     {
-        // Player hanya kurang darah jika bersentuhan dengan musuh
         if (isPlayer && collision.gameObject.CompareTag("Enemy"))
         {
             TakeDamage(1);
         }
     }
 
-    // Menggunakan OnTriggerEnter2D (Jika Collider DICENTANG Is Trigger)
     private void OnTriggerEnter2D(Collider2D other)
     {
-        // Player hanya kurang darah jika bersentuhan dengan musuh
         if (isPlayer && other.CompareTag("Enemy"))
         {
             TakeDamage(1);
@@ -69,14 +86,9 @@ public class Health : MonoBehaviour
     {
         if (isPlayer)
         {
-            Debug.Log("Player mati! Game Over.");
-            // Kamu bisa tambahkan SceneManager.LoadScene di sini nanti
+            Debug.Log("Game Over!");
+            // Bisa tambahkan efek mati atau pindah scene
         }
-        else
-        {
-            Debug.Log("Musuh hancur!");
-        }
-
         Destroy(gameObject);
     }
 }

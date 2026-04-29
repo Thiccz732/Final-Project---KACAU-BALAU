@@ -122,6 +122,7 @@ MonoBehaviour:
   maxHealth: 4
   isPlayer: 0
   healthText: {fileID: 0}
+  invincibilityDuration: 1
 --- !u!61 &1965721335427511599
 BoxCollider2D:
   m_ObjectHideFlags: 0
