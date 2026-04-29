@@ -15,14 +15,20 @@ public class Bullet : MonoBehaviour
         transform.Translate(Vector2.right * speed * Time.deltaTime);
     }
 
-    void OnTriggerEnter2D(Collider2D hitInfo)
+    private void OnTriggerEnter2D(Collider2D hitInfo)
     {
-        Health enemyHealth = hitInfo.GetComponent<Health>();
-
-        if (enemyHealth != null)
+        // 1. Cek apakah yang kena adalah musuh (Enemy)
+        if (hitInfo.CompareTag("Enemy"))
         {
-            enemyHealth.TakeDamage(damage);
-            Destroy(gameObject);
+            Health targetHealth = hitInfo.GetComponent<Health>();
+            if (targetHealth != null)
+            {
+                targetHealth.TakeDamage(damage);
+            }
+            Destroy(gameObject); // Peluru hancur setelah kena musuh
         }
+
+        // 2. Tambahkan ini agar peluru hancur jika kena tembok (opsional)
+        // else if (hitInfo.CompareTag("Wall")) { Destroy(gameObject); }
     }
 }
