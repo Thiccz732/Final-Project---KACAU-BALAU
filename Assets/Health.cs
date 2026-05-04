@@ -86,9 +86,31 @@ public class Health : MonoBehaviour
     {
         if (isPlayer)
         {
-            Debug.Log("Game Over!");
-            // Bisa tambahkan efek mati atau pindah scene
+            Debug.Log("Game Over! Menghapus semua musuh...");
+
+            // 1. Cari semua objek yang memiliki tag "Enemy"
+            GameObject[] enemies = GameObject.FindGameObjectsWithTag("Enemy");
+
+            // 2. Lakukan perulangan untuk menghapus setiap musuh yang ditemukan
+            foreach (GameObject enemy in enemies)
+            {
+                Destroy(enemy);
+            }
+
+            // 3. (Opsional) Jika Anda punya spawner, matikan juga spawner-nya
+            EnemySpawner spawner = Object.FindFirstObjectByType<EnemySpawner>();
+            if (spawner != null)
+            {
+                spawner.enabled = false;
+            }
+
+            Debug.Log("Semua musuh telah dihilangkan.");
         }
+        else
+        {
+            Debug.Log("Musuh hancur!");
+        }
+
         Destroy(gameObject);
     }
 }
