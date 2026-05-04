@@ -10,24 +10,30 @@ public class PlayerMovement : MonoBehaviour
     [Header("Combat Settings")]
     public GameObject bulletPrefab;
     public Transform shootPoint;
-    public int baseDamage = 1;
-    private int bonusDamage = 0;
+
+    // Sesuai permintaan: Normal damage adalah 2
+    public int baseDamage = 2;
+    private int currentDamage;
 
     private Rigidbody2D rb;
-    private PlayerControl controls; // Menggunakan PlayerControl sesuai file kamu[cite: 4]
+    private PlayerControl controls; // Menggunakan class dari PlayerControl.cs
 
     void Awake()
     {
         rb = GetComponent<Rigidbody2D>();
+
+        // Inisialisasi nilai awal
         currentSpeed = baseSpeed;
+        currentDamage = baseDamage;
+
         controls = new PlayerControl();
 
-        // Register Actions[cite: 4]
+        // Mendaftarkan fungsi input
         controls.Player.Attack.performed += ctx => Shoot();
 
-        // Register Skill Actions
-        controls.Player.Skill1.performed += ctx => ActivateDamageBuff();
-        controls.Player.Skill2.performed += ctx => ActivateSpeedBuff();
+        // Skill 1 (Tombol 1) dan Skill 2 (Tombol 2)
+        controls.Player.Skill1.performed += ctx => ActivateSkill1();
+        controls.Player.Skill2.performed += ctx => ActivateSkill2();
     }
 
     void OnEnable() => controls.Enable();
@@ -40,26 +46,28 @@ public class PlayerMovement : MonoBehaviour
 
     void FixedUpdate()
     {
+        // Pergerakan berdasarkan currentSpeed yang dinamis
         Vector2 moveInput = controls.Player.Move.ReadValue<Vector2>();
         rb.linearVelocity = moveInput * currentSpeed;
     }
 
-    // SKILL 1: Buff Damage (+2), Nerf Speed (Setengahnya)
-    void ActivateDamageBuff()
+    // SKILL 1: Damage naik jadi 3, Speed turun (Slow Down)
+    void ActivateSkill1()
     {
-        bonusDamage = 2;
-        currentSpeed = baseSpeed * 0.5f;
-        Debug.Log("Damage Buff Aktif: Damage naik, Speed turun!");
+        currentDamage = 3;
+        currentSpeed = baseSpeed * 0.5f; // Kecepatan jadi setengah
+        Debug.Log("Skill 1 Aktif: Damage 3, Speed Lambat");
     }
 
-    // SKILL 2: Buff Speed (Dua kali lipat), Nerf Damage (Kembali ke base)
-    void ActivateSpeedBuff()
+    // SKILL 2: Damage turun jadi 1, Speed naik (Speed Up)
+    void ActivateSkill2()
     {
-        bonusDamage = 0;
-        currentSpeed = baseSpeed * 2f;
-        Debug.Log("Speed Buff Aktif: Speed naik, Damage normal!");
+        currentDamage = 1;
+        currentSpeed = baseSpeed * 2f; // Kecepatan jadi dua kali lipat
+        Debug.Log("Skill 2 Aktif: Damage 1, Speed Cepat");
     }
 
+    // Rotasi player menghadap kursor mouse
     void AimAtCursor()
     {
         Vector2 mouseScreenPos = Mouse.current.position.ReadValue();
@@ -78,8 +86,8 @@ public class PlayerMovement : MonoBehaviour
 
             if (bulletScript != null)
             {
-                // Mengirimkan total damage ke script peluru
-                bulletScript.damage = baseDamage + bonusDamage;
+                // Mengirimkan nilai currentDamage ke peluru
+                bulletScript.damage = currentDamage;
             }
         }
     }
