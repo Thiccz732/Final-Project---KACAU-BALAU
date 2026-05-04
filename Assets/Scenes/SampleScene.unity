@@ -654,7 +654,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: '::'
   enemyPrefab: {fileID: 1584720663671794755, guid: e469325b7ba083641b39995b2b9f1b3d, type: 3}
-  spawnRate: 2
+  spawnRate: 15
+  minSpawnDistance: 12
+  maxSpawnDistance: 20
 --- !u!4 &1054882441
 Transform:
   m_ObjectHideFlags: 0
