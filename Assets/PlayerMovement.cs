@@ -1,6 +1,7 @@
 using UnityEngine;
 using System.Collections;
 using UnityEngine.InputSystem;
+using TMPro; // Wajib ditambahkan agar bisa mengontrol teks UI
 
 public class PlayerMovement : MonoBehaviour
 {
@@ -17,6 +18,9 @@ public class PlayerMovement : MonoBehaviour
     [Header("Skill Status")]
     private bool isSkillActive = false;
     private bool isCooldown = false;
+
+    [Header("UI Settings")]
+    public TextMeshProUGUI cooldownText; // Tarik objek Text (TMP) dari Canvas ke kolom ini di Inspector
 
     private Rigidbody2D rb;
     private PlayerControl controls;
@@ -73,25 +77,57 @@ public class PlayerMovement : MonoBehaviour
         // Cegah penggunaan jika masih aktif atau sedang cooldown
         if (isSkillActive || isCooldown) yield break;
 
-        // Aktifkan Skill (Durasi 5 detik)
+        // --- AKTIFKAN SKILL (Durasi 5 detik) ---
         isSkillActive = true;
         currentDamage = targetDamage;
         currentSpeed = baseSpeed * speedMultiplier;
+
+        if (cooldownText != null)
+        {
+            cooldownText.text = "SKILL ACTIVE!";
+            cooldownText.color = Color.cyan; // Warna saat skill aktif
+        }
+
         Debug.Log("Skill Aktif!");
 
         yield return new WaitForSeconds(5f);
 
-        // Reset ke Normal & Mulai Cooldown (2 detik)
+        // --- RESET KE NORMAL & MULAI COOLDOWN ---
         currentDamage = baseDamage;
         currentSpeed = baseSpeed;
         isSkillActive = false;
         isCooldown = true;
+
         Debug.Log("Cooldown Dimulai...");
 
-        yield return new WaitForSeconds(2f);
+        // Logika Hitung Mundur Cooldown (5 detik)
+        float timer = 5f;
+        while (timer > 0)
+        {
+            if (cooldownText != null)
+            {
+                cooldownText.text = "COOLDOWN: " + timer.ToString("F1") + "s";
+                cooldownText.color = Color.red; // Warna saat cooldown
+            }
 
+            yield return new WaitForSeconds(0.1f);
+            timer -= 0.1f;
+        }
+
+        // --- SELESAI COOLDOWN ---
         isCooldown = false;
+        if (cooldownText != null)
+        {
+            cooldownText.text = "READY!";
+            cooldownText.color = Color.green; // Warna saat siap digunakan
+        }
+
         Debug.Log("Skill Ready!");
+
+        // Opsional: Hilangkan teks setelah 1 detik Ready
+        yield return new WaitForSeconds(1f);
+        if (!isSkillActive && !isCooldown && cooldownText != null)
+            cooldownText.text = "";
     }
 
     void Shoot()
