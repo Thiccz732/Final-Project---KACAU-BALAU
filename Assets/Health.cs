@@ -88,6 +88,12 @@ public class Health : MonoBehaviour
         {
             Debug.Log("Game Over! Menghapus semua musuh...");
 
+            GameTimer timer = Object.FindFirstObjectByType<GameTimer>();
+            if (timer != null)
+            {
+                timer.stopTimer();
+            }
+
             // 1. Cari semua objek yang memiliki tag "Enemy"
             GameObject[] enemies = GameObject.FindGameObjectsWithTag("Enemy");
 
