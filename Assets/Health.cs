@@ -86,7 +86,7 @@ public class Health : MonoBehaviour
     {
         if (isPlayer)
         {
-            Debug.Log("Game Over! Menghapus semua musuh...");
+            Debug.Log("Game Over!");
 
             GameTimer timer = Object.FindFirstObjectByType<GameTimer>();
             if (timer != null)
@@ -94,29 +94,35 @@ public class Health : MonoBehaviour
                 timer.stopTimer();
             }
 
-            // 1. Cari semua objek yang memiliki tag "Enemy"
-            GameObject[] enemies = GameObject.FindGameObjectsWithTag("Enemy");
+            GameOverManager gameOver = Object.FindFirstObjectByType<GameOverManager>();
+            if (gameOver != null)
+            {
+                gameOver.ShowGameOver();
+            }
 
-            // 2. Lakukan perulangan untuk menghapus setiap musuh yang ditemukan
+            GameObject[] enemies = GameObject.FindGameObjectsWithTag("Enemy");
             foreach (GameObject enemy in enemies)
             {
                 Destroy(enemy);
             }
 
-            // 3. (Opsional) Jika Anda punya spawner, matikan juga spawner-nya
-            EnemySpawner spawner = Object.FindFirstObjectByType<EnemySpawner>();
+            EnemySpawner spawner = Object.FindAnyObjectByType<EnemySpawner>();
             if (spawner != null)
             {
                 spawner.enabled = false;
             }
 
-            Debug.Log("Semua musuh telah dihilangkan.");
-        }
-        else
-        {
-            Debug.Log("Musuh hancur!");
+            Debug.Log("Semua telah dihapus");
+
+            gameObject.GetComponent<SpriteRenderer>().enabled = false;
+            gameObject.GetComponent<PlayerMovement>().enabled = false;
         }
 
-        Destroy(gameObject);
+        else
+        {
+            Debug.Log("Musuh Hancur!");
+            Destroy(gameObject);
+        }
+
     }
 }
