@@ -68,9 +68,13 @@ public class Health : MonoBehaviour
 
     private void OnCollisionEnter2D(Collision2D collision)
     {
-        if (isPlayer && collision.gameObject.CompareTag("Enemy"))
+        if (isPlayer && collision.gameObject.CompareTag("Enemy")) 
         {
             TakeDamage(1);
+
+            Destroy(collision.gameObject);
+
+            Debug.Log("Musuh Menabrak Player");
         }
     }
 

@@ -2,10 +2,14 @@ using UnityEngine;
 
 public class EnemySpawner : MonoBehaviour
 {
+    // Musuh pertama (Robot Ungu)
     public GameObject enemyPrefab;
 
+    // TAMBAHAN: Musuh kedua (Hanya muncul setelah 5 menit)
+    [Header("Musuh Kedua Settings")]
+    public GameObject enemyPrefab2;
+
     [Header("Settings Agresif")]
-    // Nilai kecil = spawn sangat cepat (misal: tiap 0.5 detik)
     public float spawnRate = 0.5f;
     private float nextSpawnTime;
 
@@ -15,15 +19,20 @@ public class EnemySpawner : MonoBehaviour
 
     private Transform player;
 
+    // TAMBAHAN: Referensi ke script pencatat waktu
+    private GameTimer gameTimer;
+
     void Start()
     {
         GameObject playerObj = GameObject.Find("Player");
         if (playerObj != null) player = playerObj.transform;
+
+        // TAMBAHAN: Cari komponen GameTimer yang ada di Scene
+        gameTimer = Object.FindFirstObjectByType<GameTimer>();
     }
 
     void Update()
     {
-        // Selama waktu terpenuhi, terus spawn musuh baru
         if (Time.time >= nextSpawnTime && player != null)
         {
             SpawnEnemyOutsideView();
@@ -36,7 +45,6 @@ public class EnemySpawner : MonoBehaviour
         Vector2 spawnPos = Vector2.zero;
         bool found = false;
 
-        // Mencari posisi sampai dapat yang di luar layar
         while (!found)
         {
             float randomDist = Random.Range(minSpawnDistance, maxSpawnDistance);
@@ -46,7 +54,29 @@ public class EnemySpawner : MonoBehaviour
             if (!IsPosInPlayerView(spawnPos)) found = true;
         }
 
-        Instantiate(enemyPrefab, spawnPos, Quaternion.identity);
+        // Ubah angka 5f ini untuk testing (misal 5f = 5 detik, kalau asli = 300f)
+        float waktuSyaratMuncul = 5f;
+
+        if (gameTimer != null && gameTimer.GetTotalTime() >= waktuSyaratMuncul)
+        {
+            // Jika sudah lewat waktunya, acak antara musuh 1 atau musuh 2 (Peluang 50:50)
+            int randomChance = Random.Range(0, 2);
+
+            if (randomChance == 0)
+            {
+                Instantiate(enemyPrefab, spawnPos, Quaternion.identity);
+            }
+            else
+            {
+                Instantiate(enemyPrefab2, spawnPos, Quaternion.identity);
+                Debug.Log("Musuh kedua (Penembak) berhasil muncul!");
+            }
+        }
+        else
+        {
+            // Jika belum memenuhi syarat waktu, HANYA memunculkan musuh pertama (Robot Ungu)
+            Instantiate(enemyPrefab, spawnPos, Quaternion.identity);
+        }
     }
 
     bool IsPosInPlayerView(Vector2 worldPos)
