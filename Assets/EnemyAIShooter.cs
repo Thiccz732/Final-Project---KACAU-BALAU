@@ -7,9 +7,9 @@ public class EnemyShooterAI : MonoBehaviour
     public float stoppingDistance = 6f; // Radius jaga jarak (Musuh ngerem di jarak ini)
 
     [Header("Combat Settings")]
-    public GameObject enemyBulletPrefab; // Tarik prefab peluru musuh ke sini
-    public Transform shootPoint;         // Tarik objek moncong senjata ke sini
-    public float fireRate = 2f;          // Menembak setiap 2 detik sekali
+    public GameObject enemyBulletPrefab; // Tarik prefab peluru musuh ke sini di Inspector
+    public Transform shootPoint;         // Tarik objek ShootPoint ke sini di Inspector
+    public float fireRate = 2f;          // Jeda waktu menembak (tiap 2 detik sekali)
 
     private Transform player;
     private Rigidbody2D rb;
@@ -19,7 +19,7 @@ public class EnemyShooterAI : MonoBehaviour
     {
         rb = GetComponent<Rigidbody2D>();
 
-        // Cari Player di arena game
+        // Mencari objek Player di dalam arena game
         GameObject playerObj = GameObject.Find("Player");
         if (playerObj != null)
         {
@@ -31,21 +31,21 @@ public class EnemyShooterAI : MonoBehaviour
     {
         if (player == null) return;
 
-        // 1. Hitung jarak real-time ke Player
+        // 1. Hitung jarak real-time dari posisi musuh ke Player
         float distanceToPlayer = Vector2.Distance(transform.position, player.position);
 
-        // 2. Putar tubuh musuh agar selalu menghadap Player
-        RotateTowardsPlayer();
+        // 2. Putar HANYA objek ShootPoint agar membidik ke arah Player
+        RotateShootPointTowardsPlayer();
 
-        // 3. Logika Jaga Jarak
+        // 3. Logika Jaga Jarak (AI Movement)
         if (distanceToPlayer > stoppingDistance)
         {
-            // Jika masih jauh, maju mendekat
+            // Jika Player masih jauh di luar radius, maju mendekat
             MoveTowardsPlayer();
         }
         else
         {
-            // Jika sudah masuk radius tertentu, BERHENTI (kecepatan = 0) dan tembak!
+            // Jika sudah masuk radius jaga jarak, berhenti total dan mulai menembak
             rb.linearVelocity = Vector2.zero;
             HandleShooting();
         }
@@ -57,11 +57,17 @@ public class EnemyShooterAI : MonoBehaviour
         rb.linearVelocity = direction * speed;
     }
 
-    void RotateTowardsPlayer()
+    void RotateShootPointTowardsPlayer()
     {
-        Vector2 lookDir = (Vector2)player.position - rb.position;
-        float angle = Mathf.Atan2(lookDir.y, lookDir.x) * Mathf.Rad2Deg;
-        rb.MoveRotation(angle);
+        if (shootPoint != null)
+        {
+            // Hitung sudut arah dari ShootPoint menuju koordinat Player
+            Vector2 lookDir = (Vector2)player.position - (Vector2)shootPoint.position;
+            float angle = Mathf.Atan2(lookDir.y, lookDir.x) * Mathf.Rad2Deg;
+
+            // Putar objek ShootPoint secara mandiri di sumbu Z
+            shootPoint.rotation = Quaternion.Euler(0, 0, angle);
+        }
     }
 
     void HandleShooting()
@@ -71,7 +77,7 @@ public class EnemyShooterAI : MonoBehaviour
         if (fireTimer >= fireRate)
         {
             Shoot();
-            fireTimer = 0f;
+            fireTimer = 0f; // Reset waktu hitung mundur tembakan
         }
     }
 
@@ -79,9 +85,9 @@ public class EnemyShooterAI : MonoBehaviour
     {
         if (enemyBulletPrefab != null && shootPoint != null)
         {
-            // Munculkan peluru tepat di koordinat shootPoint
-            Instantiate(enemyBulletPrefab, shootPoint.position, transform.rotation);
-            Debug.Log("Musuh kedua menembak!");
+            // Instansiasi peluru tepat di posisi dan arah rotasi ShootPoint yang sedang membidik
+            Instantiate(enemyBulletPrefab, shootPoint.position, shootPoint.rotation);
+            Debug.Log("Musuh kedua menembak dengan akurat!");
         }
     }
 }
