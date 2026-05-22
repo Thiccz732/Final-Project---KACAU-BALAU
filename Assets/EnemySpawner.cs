@@ -2,12 +2,10 @@ using UnityEngine;
 
 public class EnemySpawner : MonoBehaviour
 {
-    // Musuh pertama (Robot Ungu)
-    public GameObject enemyPrefab;
-
-    // TAMBAHAN: Musuh kedua (Hanya muncul setelah 5 menit)
-    [Header("Musuh Kedua Settings")]
-    public GameObject enemyPrefab2;
+    [Header("Prefab Musuh")]
+    public GameObject enemyPrefab;      // Musuh pertama (Robot Ungu)
+    public GameObject enemyPrefab2;     // Musuh kedua (Penembak)
+    public GameObject bossPrefab;       // TAMBAHAN: Prefab Musuh Bos
 
     [Header("Settings Agresif")]
     public float spawnRate = 0.5f;
@@ -18,21 +16,33 @@ public class EnemySpawner : MonoBehaviour
     public float maxSpawnDistance = 18f;
 
     private Transform player;
-
-    // TAMBAHAN: Referensi ke script pencatat waktu
     private GameTimer gameTimer;
+
+    // TAMBAHAN: Penanda agar bos hanya muncul 1 kali saja
+    private bool bossSpawned = false;
 
     void Start()
     {
         GameObject playerObj = GameObject.Find("Player");
         if (playerObj != null) player = playerObj.transform;
 
-        // TAMBAHAN: Cari komponen GameTimer yang ada di Scene
         gameTimer = Object.FindFirstObjectByType<GameTimer>();
     }
 
     void Update()
     {
+        // Jika bos sudah muncul, hentikan semua aktivitas spawn musuh biasa!
+        if (bossSpawned) return;
+
+        // Mengecek syarat waktu kemunculan Bos (Misal: Menit ke-10 atau detik ke-600)
+        // Untuk testing, kamu bisa ubah angka 600f ini menjadi 10f (10 detik)
+        if (gameTimer != null && gameTimer.GetTotalTime() >= 15f && !bossSpawned)
+        {
+            SpawnBossAndClearEnemies();
+            return; // Keluar dari fungsi Update agar tidak menjalankan spawn kroco di bawah
+        }
+
+        // Jalankan spawn musuh biasa selama waktu terpenuhi
         if (Time.time >= nextSpawnTime && player != null)
         {
             SpawnEnemyOutsideView();
@@ -54,28 +64,44 @@ public class EnemySpawner : MonoBehaviour
             if (!IsPosInPlayerView(spawnPos)) found = true;
         }
 
-        // Ubah angka 5f ini untuk testing (misal 5f = 5 detik, kalau asli = 300f)
-        float waktuSyaratMuncul = 5f;
-
-        if (gameTimer != null && gameTimer.GetTotalTime() >= waktuSyaratMuncul)
+        // Logika acak kemunculan musuh biasa setelah menit ke-5 (300 detik)
+        if (gameTimer != null && gameTimer.GetTotalTime() >= 5f)
         {
-            // Jika sudah lewat waktunya, acak antara musuh 1 atau musuh 2 (Peluang 50:50)
             int randomChance = Random.Range(0, 2);
-
-            if (randomChance == 0)
-            {
-                Instantiate(enemyPrefab, spawnPos, Quaternion.identity);
-            }
-            else
-            {
-                Instantiate(enemyPrefab2, spawnPos, Quaternion.identity);
-                Debug.Log("Musuh kedua (Penembak) berhasil muncul!");
-            }
+            if (randomChance == 0) Instantiate(enemyPrefab, spawnPos, Quaternion.identity);
+            else Instantiate(enemyPrefab2, spawnPos, Quaternion.identity);
         }
         else
         {
-            // Jika belum memenuhi syarat waktu, HANYA memunculkan musuh pertama (Robot Ungu)
             Instantiate(enemyPrefab, spawnPos, Quaternion.identity);
+        }
+    }
+
+    // ========================================================
+    // LOGIKA TAMBAHAN: SAPU BERSIH MUSUH & MUNCULKAN BOS
+    // ========================================================
+    void SpawnBossAndClearEnemies()
+    {
+        bossSpawned = true; // Kunci status agar fungsi ini tidak dipanggil berulang-ulang
+        Debug.Log("PERINGATAN: Bos Besar Datang! Menyapu bersih semua kroco...");
+
+        // 1. Cari seluruh objek di arena yang memiliki Tag "Enemy"
+        GameObject[] activeEnemies = GameObject.FindGameObjectsWithTag("Enemy");
+
+        // 2. Hancurkan semua musuh biasa tersebut satu per satu dari layar
+        foreach (GameObject enemy in activeEnemies)
+        {
+            Destroy(enemy);
+        }
+
+        // 3. Tentukan posisi munculnya bos (Bisa di luar layar atau pas di depan player)
+        if (player != null)
+        {
+            // Contoh: Bos muncul 10 kotak di sebelah kanan posisi Player saat ini
+            Vector2 bossSpawnPos = (Vector2)player.position + new Vector2(10f, 0f);
+
+            // 4. Instansiasi Bos Besar ke dalam arena game
+            Instantiate(bossPrefab, bossSpawnPos, Quaternion.identity);
         }
     }
 
