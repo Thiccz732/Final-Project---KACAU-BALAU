@@ -11,7 +11,10 @@ public class EnemyShooterAI : MonoBehaviour
     public Transform shootPoint;         // Tarik objek ShootPoint ke sini di Inspector
     public float fireRate = 2f;          // Jeda waktu menembak (tiap 2 detik sekali)
 
-    private Transform player;
+    [Header("Target Settings")]
+    [Tooltip("Tarik objek Player dari Hierarchy ke kolom ini")]
+    public Transform player;             // Kita ubah jadi public agar bisa di-drag lewat Inspector
+
     private Rigidbody2D rb;
     private float fireTimer;
 
@@ -19,12 +22,27 @@ public class EnemyShooterAI : MonoBehaviour
     {
         rb = GetComponent<Rigidbody2D>();
 
-        // Mencari objek Player di dalam arena game
-        GameObject playerObj = GameObject.Find("Player");
-        if (playerObj != null)
+        // Jika lupa ditarik di Inspector, sistem akan mencoba mencari cadangan otomatis
+        if (player == null)
         {
-            player = playerObj.transform;
+            GameObject playerObj = GameObject.FindWithTag("Player");
+            if (playerObj != null)
+            {
+                player = playerObj.transform;
+            }
+            else
+            {
+                Debug.LogError("PERINGATAN: Objek Player belum dimasukkan ke Inspector musuh!");
+            }
         }
+    }
+
+    void Update()
+    {
+        if (player == null) return;
+
+        // Timer menembak terus berjalan di latar belakang
+        fireTimer += Time.deltaTime;
     }
 
     void FixedUpdate()
@@ -37,7 +55,7 @@ public class EnemyShooterAI : MonoBehaviour
         // 2. Putar HANYA objek ShootPoint agar membidik ke arah Player
         RotateShootPointTowardsPlayer();
 
-        // 3. Logika Jaga Jarak (AI Movement)
+        // 3. Logika Jaga Jarak (AI Movement) & Menembak
         if (distanceToPlayer > stoppingDistance)
         {
             // Jika Player masih jauh di luar radius, maju mendekat
@@ -45,9 +63,15 @@ public class EnemyShooterAI : MonoBehaviour
         }
         else
         {
-            // Jika sudah masuk radius jaga jarak, berhenti total dan mulai menembak
+            // Jika sudah masuk radius jaga jarak, berhenti total
             rb.linearVelocity = Vector2.zero;
-            HandleShooting();
+
+            // Eksekusi menembak jika timer sudah mencukupi
+            if (fireTimer >= fireRate)
+            {
+                Shoot();
+                fireTimer = 0f; // Reset timer setelah menembak
+            }
         }
     }
 
@@ -67,17 +91,6 @@ public class EnemyShooterAI : MonoBehaviour
 
             // Putar objek ShootPoint secara mandiri di sumbu Z
             shootPoint.rotation = Quaternion.Euler(0, 0, angle);
-        }
-    }
-
-    void HandleShooting()
-    {
-        fireTimer += Time.deltaTime;
-
-        if (fireTimer >= fireRate)
-        {
-            Shoot();
-            fireTimer = 0f; // Reset waktu hitung mundur tembakan
         }
     }
 
