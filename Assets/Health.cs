@@ -68,13 +68,24 @@ public class Health : MonoBehaviour
 
     private void OnCollisionEnter2D(Collision2D collision)
     {
-        if (isPlayer && collision.gameObject.CompareTag("Enemy")) 
+        // Cek jika objek ini adalah Player
+        if (isPlayer)
         {
-            TakeDamage(1);
+            // 1. JIKA YANG MENABRAK ADALAH KROCO BIASA
+            if (collision.gameObject.CompareTag("Enemy"))
+            {
+                TakeDamage(1);
+                Destroy(collision.gameObject); // Kroco langsung hancur saat nyentuh Player
+                Debug.Log("Kroco menabrak Player dan hancur!");
+            }
 
-            Destroy(collision.gameObject);
-
-            Debug.Log("Musuh Menabrak Player");
+            // 2. JIKA YANG MENABRAK ADALAH BOS BESAR
+            else if (collision.gameObject.CompareTag("Boss"))
+            {
+                TakeDamage(1); // Player tetap kena damage
+                               // KODE DESTROY SENGAJA TIDAK DITULIS AGAR BOS GAK BAKAL ANCUR!
+                Debug.Log("Bos menyenggol Player! Player terluka, tapi Bos tetap hidup.");
+            }
         }
     }
 

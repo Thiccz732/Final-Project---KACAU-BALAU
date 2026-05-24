@@ -2,6 +2,9 @@ using UnityEngine;
 
 public class BossShooterAI : MonoBehaviour
 {
+    [Header("Movement Settings")]
+    public float speed = 1.5f;           // Kecepatan Bos mengejar Player
+
     [Header("Combat Settings")]
     public GameObject bossBulletPrefab; // Tarik prefab peluru boss ke sini
     public Transform shootPoint;         // Titik pusat tembakan (bisa di tengah badan boss)
@@ -12,6 +15,26 @@ public class BossShooterAI : MonoBehaviour
     public float bulletSpeed = 5f;       // Kecepatan peluru boss
 
     private float fireTimer;
+    private Transform player;
+    private Rigidbody2D rb;
+
+    void Start()
+    {
+        rb = GetComponent<Rigidbody2D>();
+
+        // Cari Player di arena permainan
+        GameObject playerObj = GameObject.Find("Player");
+        if (playerObj != null)
+        {
+            player = playerObj.transform;
+        }
+
+        // Kunci rotasi fisik Bos agar gambarnya selalu tegak lurus secara otomatis
+        if (rb != null)
+        {
+            rb.freezeRotation = true;
+        }
+    }
 
     void Update()
     {
@@ -22,6 +45,16 @@ public class BossShooterAI : MonoBehaviour
         {
             ShootRadialPattern();
             fireTimer = 0f; // Reset timer
+        }
+    }
+
+    void FixedUpdate()
+    {
+        // Logika bergerak mengejar Player secara perlahan
+        if (player != null && rb != null)
+        {
+            Vector2 direction = (player.position - transform.position).normalized;
+            rb.linearVelocity = direction * speed;
         }
     }
 
@@ -49,10 +82,10 @@ public class BossShooterAI : MonoBehaviour
             GameObject bullet = Instantiate(bossBulletPrefab, shootPoint.position, bulletRotation);
 
             // 4. Berikan kecepatan fisik ke peluru berdasarkan arah lingkaran tadi
-            Rigidbody2D rb = bullet.GetComponent<Rigidbody2D>();
-            if (rb != null)
+            Rigidbody2D bulletRb = bullet.GetComponent<Rigidbody2D>();
+            if (bulletRb != null)
             {
-                rb.linearVelocity = bulletMoveDirection * bulletSpeed;
+                bulletRb.linearVelocity = bulletMoveDirection * bulletSpeed;
             }
 
             // Tambahkan sudut untuk peluru berikutnya di dalam loop
