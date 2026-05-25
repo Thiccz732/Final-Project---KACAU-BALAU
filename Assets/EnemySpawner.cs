@@ -31,18 +31,16 @@ public class EnemySpawner : MonoBehaviour
 
     void Update()
     {
-        // Jika bos sudah muncul, hentikan semua aktivitas spawn musuh biasa!
         if (bossSpawned) return;
 
         // Mengecek syarat waktu kemunculan Bos (Misal: Menit ke-10 atau detik ke-600)
         // Untuk testing, kamu bisa ubah angka 600f ini menjadi 10f (10 detik)
-        if (gameTimer != null && gameTimer.GetTotalTime() >= 15f && !bossSpawned)
+        if (gameTimer != null && gameTimer.GetTotalTime() >= 600f && !bossSpawned)
         {
             SpawnBossAndClearEnemies();
-            return; // Keluar dari fungsi Update agar tidak menjalankan spawn kroco di bawah
+            return;
         }
 
-        // Jalankan spawn musuh biasa selama waktu terpenuhi
         if (Time.time >= nextSpawnTime && player != null)
         {
             SpawnEnemyOutsideView();
@@ -65,7 +63,7 @@ public class EnemySpawner : MonoBehaviour
         }
 
         // Logika acak kemunculan musuh biasa setelah menit ke-5 (300 detik)
-        if (gameTimer != null && gameTimer.GetTotalTime() >= 5f)
+        if (gameTimer != null && gameTimer.GetTotalTime() >= 300f)
         {
             int randomChance = Random.Range(0, 2);
             if (randomChance == 0) Instantiate(enemyPrefab, spawnPos, Quaternion.identity);
@@ -77,18 +75,13 @@ public class EnemySpawner : MonoBehaviour
         }
     }
 
-    // ========================================================
-    // LOGIKA TAMBAHAN: SAPU BERSIH MUSUH & MUNCULKAN BOS
-    // ========================================================
     void SpawnBossAndClearEnemies()
     {
-        bossSpawned = true; // Kunci status agar fungsi ini tidak dipanggil berulang-ulang
+        bossSpawned = true; 
         Debug.Log("PERINGATAN: Bos Besar Datang! Menyapu bersih semua kroco...");
 
-        // 1. Cari seluruh objek di arena yang memiliki Tag "Enemy"
         GameObject[] activeEnemies = GameObject.FindGameObjectsWithTag("Enemy");
 
-        // 2. Hancurkan semua musuh biasa tersebut satu per satu dari layar
         foreach (GameObject enemy in activeEnemies)
         {
             Destroy(enemy);
