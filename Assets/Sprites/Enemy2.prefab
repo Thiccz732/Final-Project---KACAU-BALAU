@@ -159,6 +159,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Health
   maxHealth: 4
+  deathSound: {fileID: 8300000, guid: 4e00f8dfef3a52548a2caae955febc75, type: 3}
   isPlayer: 0
   healthText: {fileID: 0}
   invincibilityDuration: 1

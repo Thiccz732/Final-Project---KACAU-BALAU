@@ -8,6 +8,9 @@ public class Health : MonoBehaviour
     public int maxHealth = 10; 
     private int currentHealth;
 
+    [Header("Audio Settings")]
+    public AudioClip deathSound;
+
     [Header("Settings")]
     public bool isPlayer;
     public TextMeshProUGUI healthText;
@@ -148,6 +151,12 @@ public class Health : MonoBehaviour
         }
         else
         {
+            if (deathSound != null)
+            {
+                // Lahirkan suara ledakan tepat di koordinat musuh tersebut berada
+                AudioSource.PlayClipAtPoint(deathSound, transform.position);
+            }
+
             Debug.Log("Musuh Hancur!");
             Destroy(gameObject);
         }
