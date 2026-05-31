@@ -35,7 +35,7 @@ public class EnemySpawner : MonoBehaviour
 
         // Mengecek syarat waktu kemunculan Bos (Misal: Menit ke-10 atau detik ke-600)
         // Untuk testing, kamu bisa ubah angka 600f ini menjadi 10f (10 detik)
-        if (gameTimer != null && gameTimer.GetTotalTime() >= 600f && !bossSpawned)
+        if (gameTimer != null && gameTimer.GetTotalTime() >= 10f && !bossSpawned)
         {
             SpawnBossAndClearEnemies();
             return;
@@ -63,7 +63,7 @@ public class EnemySpawner : MonoBehaviour
         }
 
         // Logika acak kemunculan musuh biasa setelah menit ke-5 (300 detik)
-        if (gameTimer != null && gameTimer.GetTotalTime() >= 300f)
+        if (gameTimer != null && gameTimer.GetTotalTime() >= 5f)
         {
             int randomChance = Random.Range(0, 2);
             if (randomChance == 0) Instantiate(enemyPrefab, spawnPos, Quaternion.identity);

@@ -7,9 +7,9 @@ public class EnemyShooterAI : MonoBehaviour
     public float stoppingDistance = 6f; // Radius jaga jarak (Musuh ngerem di jarak ini)
 
     [Header("Combat Settings")]
-    public GameObject enemyBulletPrefab; // Tarik prefab peluru musuh ke sini di Inspector
-    public Transform shootPoint;         // Tarik objek ShootPoint ke sini di Inspector
-    public float fireRate = 2f;          // Jeda waktu menembak (tiap 2 detik sekali)
+    public GameObject enemyBulletPrefab; 
+    public Transform shootPoint;        
+    public float fireRate = 2f;          
 
     [Header("Target Settings")]
     [Tooltip("Tarik objek Player dari Hierarchy ke kolom ini")]
@@ -18,11 +18,17 @@ public class EnemyShooterAI : MonoBehaviour
     private Rigidbody2D rb;
     private float fireTimer;
 
+    // Variabel penampung batas panggung (Otomatis dicari oleh script)
+    private Transform borderLeft;
+    private Transform borderRight;
+    private Transform borderTop;
+    private Transform borderDown;
+
     void Start()
     {
         rb = GetComponent<Rigidbody2D>();
 
-        // Jika lupa ditarik di Inspector, sistem akan mencoba mencari cadangan otomatis
+    
         if (player == null)
         {
             GameObject playerObj = GameObject.FindWithTag("Player");
@@ -35,6 +41,19 @@ public class EnemyShooterAI : MonoBehaviour
                 Debug.LogError("PERINGATAN: Objek Player belum dimasukkan ke Inspector musuh!");
             }
         }
+
+ // Border
+        GameObject leftObj = GameObject.Find("Left");
+        if (leftObj != null) borderLeft = leftObj.transform;
+
+        GameObject rightObj = GameObject.Find("Right");
+        if (rightObj != null) borderRight = rightObj.transform;
+
+        GameObject topObj = GameObject.Find("Top");
+        if (topObj != null) borderTop = topObj.transform;
+
+        GameObject downObj = GameObject.Find("Down");
+        if (downObj != null) borderDown = downObj.transform;
     }
 
     void Update()
@@ -72,6 +91,15 @@ public class EnemyShooterAI : MonoBehaviour
                 Shoot();
                 fireTimer = 0f; // Reset timer setelah menembak
             }
+        }
+//Kunci border
+        if (borderLeft != null && borderRight != null && borderTop != null && borderDown != null)
+        {
+            // Mengunci posisi musuh penembak murni di antara koordinat global tembok pembatas
+            float clampedX = Mathf.Clamp(transform.position.x, borderLeft.position.x, borderRight.position.x);
+            float clampedY = Mathf.Clamp(transform.position.y, borderDown.position.y, borderTop.position.y);
+            
+            transform.position = new Vector2(clampedX, clampedY);
         }
     }
 
