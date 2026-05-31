@@ -1,11 +1,11 @@
 using UnityEngine;
 using TMPro;
-using System.Collections; // Dibutuhkan untuk IEnumerator
+using System.Collections; 
 
 public class Health : MonoBehaviour
 {
     [Header("Statistik Darah")]
-    public int maxHealth = 4;
+    public int maxHealth = 10; 
     private int currentHealth;
 
     [Header("Settings")]
@@ -16,10 +16,19 @@ public class Health : MonoBehaviour
     public float invincibilityDuration = 1f; // Durasi kebal setelah kena hit
     private bool isInvincible = false;
 
+    private HealthUIController uiController;
+
     void Start()
     {
         currentHealth = maxHealth;
-        if (isPlayer) UpdateUI();
+        
+        if (isPlayer)
+        {
+            // 2. DI SINI: Mencari otomatis objek pengatur gambar sprite UI di arena
+            uiController = Object.FindFirstObjectByType<HealthUIController>();
+            
+            UpdateUI();
+        }
     }
 
     public void TakeDamage(int damage)
@@ -49,7 +58,6 @@ public class Health : MonoBehaviour
     {
         isInvincible = true;
 
-        // Opsional: Kamu bisa tambahkan efek kedip-kedip sprite di sini
         Debug.Log("Player sedang kebal...");
 
         yield return new WaitForSeconds(invincibilityDuration);
@@ -60,9 +68,15 @@ public class Health : MonoBehaviour
 
     void UpdateUI()
     {
+        // Tetap mempertahankan text bawaan lama kamu agar tidak error
         if (healthText != null)
         {
             healthText.text = "HP: " + currentHealth;
+        }
+
+        if (uiController != null)
+        {
+            uiController.UpdateHealthUI(currentHealth);
         }
     }
 
@@ -132,12 +146,10 @@ public class Health : MonoBehaviour
             gameObject.GetComponent<SpriteRenderer>().enabled = false;
             gameObject.GetComponent<PlayerMovement>().enabled = false;
         }
-
         else
         {
             Debug.Log("Musuh Hancur!");
             Destroy(gameObject);
         }
-
     }
 }
