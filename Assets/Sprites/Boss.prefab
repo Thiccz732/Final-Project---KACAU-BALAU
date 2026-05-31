@@ -146,6 +146,7 @@ MonoBehaviour:
   isPlayer: 0
   healthText: {fileID: 0}
   invincibilityDuration: 1
+  explosionEffectPrefab: {fileID: 497649443746545007, guid: 38ca3f1cbdf07fa439e5ec062d52ca61, type: 3}
 --- !u!50 &8888743286843183413
 Rigidbody2D:
   serializedVersion: 5
@@ -249,7 +250,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 45e22f0d9dc4d4f45a38c112206c981d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::BulletHellPattern
-  polaSaatIni: 0
+  polaSaatIni: 2
   bulletPrefab: {fileID: 8745690914331895325, guid: 3612a8f7dd152b140bd54bb40a840988, type: 3}
   shootPoint: {fileID: 8177734575699299723}
   bulletSpeed: 5

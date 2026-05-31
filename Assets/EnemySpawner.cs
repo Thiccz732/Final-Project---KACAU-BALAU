@@ -21,6 +21,9 @@ public class EnemySpawner : MonoBehaviour
     // TAMBAHAN: Penanda agar bos hanya muncul 1 kali saja
     private bool bossSpawned = false;
 
+    // TAMBAHAN: Penanda agar musik tahap 2 hanya dipicu satu kali saja di menit ke-5
+    private bool musicStage2Triggered = false;
+
     void Start()
     {
         GameObject playerObj = GameObject.Find("Player");
@@ -65,6 +68,16 @@ public class EnemySpawner : MonoBehaviour
         // Logika acak kemunculan musuh biasa setelah menit ke-5 (300 detik)
         if (gameTimer != null && gameTimer.GetTotalTime() >= 5f)
         {
+            if (!musicStage2Triggered)
+            {
+                musicStage2Triggered = true;
+                MusicManager music = Object.FindFirstObjectByType<MusicManager>();
+                if (music != null)
+                {
+                    music.GantiMusikDinamis("Tahap2");
+                }
+            }
+
             int randomChance = Random.Range(0, 2);
             if (randomChance == 0) Instantiate(enemyPrefab, spawnPos, Quaternion.identity);
             else Instantiate(enemyPrefab2, spawnPos, Quaternion.identity);
@@ -79,6 +92,12 @@ public class EnemySpawner : MonoBehaviour
     {
         bossSpawned = true; 
         Debug.Log("PERINGATAN: Bos Besar Datang! Menyapu bersih semua kroco...");
+
+        MusicManager music = Object.FindFirstObjectByType<MusicManager>();
+        if (music != null)
+        {
+            music.GantiMusikDinamis("Boss");
+        }
 
         GameObject[] activeEnemies = GameObject.FindGameObjectsWithTag("Enemy");
 

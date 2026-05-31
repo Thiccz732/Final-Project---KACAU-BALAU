@@ -231,7 +231,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -212.4, y: 122.7}
+  m_AnchoredPosition: {x: -870, y: 502}
   m_SizeDelta: {x: 30.1025, y: 6.8688}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &125126144
@@ -281,8 +281,8 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 6
-  m_fontSizeBase: 6
+  m_fontSize: 40
+  m_fontSizeBase: 40
   m_fontWeight: 400
   m_enableAutoSizing: 0
   m_fontSizeMin: 18
@@ -320,7 +320,7 @@ MonoBehaviour:
   m_VertexBufferAutoSizeReduction: 0
   m_useMaxVisibleDescender: 1
   m_pageToDisplay: 1
-  m_margin: {x: 0, y: 0, z: 0, w: 0}
+  m_margin: {x: 0, y: 0, z: -193.27258, w: 0}
   m_isUsingLegacyAnimationComponent: 0
   m_isVolumetricText: 0
   m_hasFontAssetChanged: 0
@@ -1315,8 +1315,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 0.000005722, y: 115.25}
-  m_SizeDelta: {x: 86.6896, y: 13.0906}
+  m_AnchoredPosition: {x: 45, y: 428.61}
+  m_SizeDelta: {x: 529.6025, y: 75.7873}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &827390463
 MonoBehaviour:
@@ -1996,6 +1996,53 @@ BoxCollider2D:
   m_AutoTiling: 0
   m_Size: {x: 1, y: 38.03641}
   m_EdgeRadius: 0
+--- !u!1 &1249846614
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1249846616}
+  - component: {fileID: 1249846615}
+  m_Layer: 0
+  m_Name: MusicManager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1249846615
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1249846614}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9812e21fda4fed143bf43e91f29863cf, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::MusicManager
+  bgmTahap1: {fileID: 8300000, guid: 653ad1eaf7b87e647988c5e9f516403f, type: 3}
+  bgmTahap2: {fileID: 8300000, guid: 6808714616a4844458068d162400bd01, type: 3}
+  bgmBoss: {fileID: 8300000, guid: a0c46af98108c774cbcaebe432b0e99e, type: 3}
+--- !u!4 &1249846616
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1249846614}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 664.44836, y: 545.3708, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1261451118
 GameObject:
   m_ObjectHideFlags: 0
@@ -2709,9 +2756,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Health
   maxHealth: 10
+  deathSound: {fileID: 0}
   isPlayer: 1
   healthText: {fileID: 0}
   invincibilityDuration: 1
+  explosionEffectPrefab: {fileID: 0}
 --- !u!1 &1962049313
 GameObject:
   m_ObjectHideFlags: 0
@@ -3042,8 +3091,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 192.5, y: 109.3}
-  m_SizeDelta: {x: 72.595, y: 25}
+  m_AnchoredPosition: {x: 697, y: 452.28973}
+  m_SizeDelta: {x: 264.1438, y: 28.4205}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &2097396160
 MonoBehaviour:
@@ -3092,8 +3141,8 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 20
-  m_fontSizeBase: 20
+  m_fontSize: 56
+  m_fontSizeBase: 56
   m_fontWeight: 400
   m_enableAutoSizing: 0
   m_fontSizeMin: 18
@@ -3131,7 +3180,7 @@ MonoBehaviour:
   m_VertexBufferAutoSizeReduction: 0
   m_useMaxVisibleDescender: 1
   m_pageToDisplay: 1
-  m_margin: {x: 0, y: 0, z: 0, w: 0}
+  m_margin: {x: 0, y: 0, z: -18.812622, w: 0}
   m_isUsingLegacyAnimationComponent: 0
   m_isVolumetricText: 0
   m_hasFontAssetChanged: 0
@@ -3291,12 +3340,13 @@ SceneRoots:
   - {fileID: 799418349}
   - {fileID: 1508963576}
   - {fileID: 914368096}
-  - {fileID: 938072084}
+  - {fileID: 1249846616}
   - {fileID: 1362194778}
   - {fileID: 877443071}
-  - {fileID: 1072400144}
   - {fileID: 1962049315}
+  - {fileID: 1380330848}
+  - {fileID: 938072084}
+  - {fileID: 1072400144}
   - {fileID: 1654416078}
   - {fileID: 1054882441}
-  - {fileID: 1380330848}
   - {fileID: 2085992124}

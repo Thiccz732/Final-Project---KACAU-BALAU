@@ -126,6 +126,7 @@ MonoBehaviour:
   isPlayer: 0
   healthText: {fileID: 0}
   invincibilityDuration: 1
+  explosionEffectPrefab: {fileID: 497649443746545007, guid: 38ca3f1cbdf07fa439e5ec062d52ca61, type: 3}
 --- !u!61 &1965721335427511599
 BoxCollider2D:
   m_ObjectHideFlags: 0

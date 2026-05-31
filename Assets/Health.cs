@@ -19,6 +19,9 @@ public class Health : MonoBehaviour
     public float invincibilityDuration = 1f; // Durasi kebal setelah kena hit
     private bool isInvincible = false;
 
+    [Header("Visual Effects Settings")]
+    public GameObject explosionEffectPrefab;
+
     private HealthUIController uiController;
 
     void Start()
@@ -151,14 +154,23 @@ public class Health : MonoBehaviour
         }
         else
         {
+            // =======================================================================
+            // UTAMA: Memunculkan Animasi Ledakan Tepat di Posisi Musuh Saat Ini
+            // =======================================================================
+            if (explosionEffectPrefab != null)
+            {
+                // Spawn animasi ledakan di koordinat musuh tanpa mengubah rotasinya (identity)
+                Instantiate(explosionEffectPrefab, transform.position, Quaternion.identity);
+            }
+
+            // (Suara ledakan kemarin)
             if (deathSound != null)
             {
-                // Lahirkan suara ledakan tepat di koordinat musuh tersebut berada
                 AudioSource.PlayClipAtPoint(deathSound, transform.position);
             }
 
             Debug.Log("Musuh Hancur!");
-            Destroy(gameObject);
+            Destroy(gameObject); // Tubuh musuh hilang, menyisakan efek ledakan yang berputar
         }
     }
 }
