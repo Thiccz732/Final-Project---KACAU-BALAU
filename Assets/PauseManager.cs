@@ -53,9 +53,6 @@ public class PauseManager : MonoBehaviour
         Time.timeScale = 1f; // Jalankan game kembali
     }
 
-    // =======================================================================
-    // FUNGSIONALITAS BARU: RESTART GAME
-    // =======================================================================
     public void RestartGame()
     {
         Time.timeScale = 1f; // WAJIB: Kembalikan waktu ke normal sebelum reload agar game tidak macet
