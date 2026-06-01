@@ -12,6 +12,7 @@ public class GameTimer : MonoBehaviour
     void Start()
     {
         elapsedTime = 0f;
+        isGameRunning = true; // Memastikan timer langsung jalan saat panggung dimulai
     }
 
     void Update()
@@ -19,10 +20,8 @@ public class GameTimer : MonoBehaviour
         if (isGameRunning)
         {
             elapsedTime += Time.deltaTime;
-
             UpdateTimerDisplay();
         }
-
     }
 
     void UpdateTimerDisplay()
@@ -44,5 +43,15 @@ public class GameTimer : MonoBehaviour
     public float GetTotalTime()
     {
         return elapsedTime;
+    }
+
+    // =======================================================================
+    // TAMBAHAN OPSIONAL: PEMBERSIH TIMER SAAT RESTART
+    // =======================================================================
+    public void ResetTimer()
+    {
+        elapsedTime = 0f;
+        isGameRunning = true;
+        UpdateTimerDisplay();
     }
 }

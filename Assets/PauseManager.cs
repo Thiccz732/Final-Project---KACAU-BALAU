@@ -1,28 +1,25 @@
 using UnityEngine;
+using UnityEngine.SceneManagement; // Wajib ditambahkan untuk mengatur pindah Scene dan Restart
 
 public class PauseManager : MonoBehaviour
 {
     [Header("UI Reference")]
     [Tooltip("Tarik objek PausePanel dari Canvas ke kolom ini")]
-    public GameObject pausePanel; // Menampung panel UI Pause
+    public GameObject pausePanel; 
 
     private bool isPaused = false;
 
     void Start()
     {
-        // Memastikan panel pause tertutup di awal game berjalan
         if (pausePanel != null)
         {
             pausePanel.SetActive(false);
         }
-        
-        // Memastikan waktu game berjalan normal di awal
-        Time.timeScale = 1f;
+        Time.timeScale = 1f; // Pastikan waktu jalan saat masuk scene
     }
 
     void Update()
     {
-        // Mendeteksi jika pemain menekan tombol Escape (Esc)
         if (Input.GetKeyDown(KeyCode.Escape))
         {
             if (isPaused)
@@ -39,32 +36,45 @@ public class PauseManager : MonoBehaviour
     public void PauseGame()
     {
         isPaused = true;
-        
-        // 1. Munculkan panel UI Pause di layar
         if (pausePanel != null)
         {
             pausePanel.SetActive(true);
         }
-
-        // 2. BEKUKAN WAKTU GAME TOTAL (Angka 0 berarti berhenti)
-        Time.timeScale = 0f;
-        
-        Debug.Log("Game di-pause.");
+        Time.timeScale = 0f; // Bekukan game
     }
 
     public void ResumeGame()
     {
         isPaused = false;
-
-        // 1. Sembunyikan kembali panel UI Pause
         if (pausePanel != null)
         {
             pausePanel.SetActive(false);
         }
+        Time.timeScale = 1f; // Jalankan game kembali
+    }
 
-        // 2. KEMBALIKAN WAKTU GAME KE NORMAL (Angka 1 berarti jalan)
-        Time.timeScale = 1f;
+    // =======================================================================
+    // FUNGSIONALITAS BARU: RESTART GAME
+    // =======================================================================
+    public void RestartGame()
+    {
+        Time.timeScale = 1f; // WAJIB: Kembalikan waktu ke normal sebelum reload agar game tidak macet
+        
+        // Mengambil nama scene aktif saat ini (SampleScene) lalu memuatnya ulang dari awal
+        SceneManager.LoadScene(SceneManager.GetActiveScene().name);
+        Debug.Log("Game Di-reset!");
+    }
 
-        Debug.Log("Game dilanjutkan.");
+    // =======================================================================
+    // FUNGSIONALITAS BARU: QUIT KE MAIN MENU
+    // =======================================================================
+    public void QuitToMainMenu()
+    {
+        Time.timeScale = 1f; // WAJIB: Kembalikan waktu ke normal
+        
+        // Memuat scene menu utama. 
+        // Ganti teks "MainMenu" di bawah sesuai dengan nama Scene Menu milikmu yang asli
+        SceneManager.LoadScene("MainMenu"); 
+        Debug.Log("Keluar ke Main Menu...");
     }
 }

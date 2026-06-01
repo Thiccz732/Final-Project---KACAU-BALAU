@@ -1,6 +1,7 @@
 using UnityEngine;
 using TMPro;
 using System.Collections; 
+using Unity.Cinemachine; // Wajib ditambahkan untuk mengontrol Cinemachine Virtual Camera (opsional, tapi bagus untuk efek kamera saat Player mati)
 
 public class Health : MonoBehaviour
 {
@@ -50,11 +51,22 @@ public class Health : MonoBehaviour
         if (isPlayer)
         {
             UpdateUI();
+            
+            // =======================================================================
+            // DI SINI: PEMICU KAMERA GETAR SAAT PLAYER TERKENA HIT
+            // =======================================================================
+            Unity.Cinemachine.CinemachineImpulseSource impulse = GetComponent<Unity.Cinemachine.CinemachineImpulseSource>();
+            if (impulse != null)
+            {
+                impulse.GenerateImpulse(); // Memancarkan gelombang getar ke kamera
+            }
+
             StartCoroutine(BecomeInvincible());
         }
 
         if (currentHealth <= 0)
         {
+            // Jika darah habis, panggil fungsi Die() yang kemarin sudah kita rapihin
             Die();
         }
     }
@@ -118,16 +130,35 @@ public class Health : MonoBehaviour
     }
 
     void Die()
+{
+    if (isPlayer)
     {
-        if (isPlayer)
-        {
-            Debug.Log("Game Over!");
+        Debug.Log("Game Over!");
 
-            GameTimer timer = Object.FindFirstObjectByType<GameTimer>();
-            if (timer != null)
+        GameTimer timer = Object.FindFirstObjectByType<GameTimer>();
+        if (timer != null)
+        {
+            timer.stopTimer();
+
+            // =======================================================================
+            // DI SINI: LOGIKA MENYIMPAN REKOR WAKTU BERTAHAN TERLAMA (PLAYERPREFS)
+            // =======================================================================
+            // 1. Ambil total waktu bertahan dari script GameTimer kamu (misal fungsinya GetTotalTime())
+            // Catatan: Jika nama fungsi di script GameTimer-mu bukan GetTotalTime(), 
+            // silakan ganti teks '.GetTotalTime()' di bawah sesuai nama fungsi asli di scriptmu (misal .totalTime atau sejenisnya)
+            float waktuSekarang = timer.GetTotalTime(); 
+            
+            // 2. Ambil rekor tertinggi yang pernah disimpan sebelumnya (default 0 jika belum ada)
+            float rekorLama = PlayerPrefs.GetFloat("BestTime", 0f);
+
+            // 3. Jika waktu bermain sekarang lebih lama dari rekor lama, update memorinya!
+            if (waktuSekarang > rekorLama)
             {
-                timer.stopTimer();
+                PlayerPrefs.SetFloat("BestTime", waktuSekarang);
+                PlayerPrefs.Save(); // Mengunci data agar aman di memori laptop
+                Debug.Log("REKOR BARU BERHASIL DISIMPAN: " + waktuSekarang + " detik!");
             }
+        }
 
             GameOverManager gameOver = Object.FindFirstObjectByType<GameOverManager>();
             if (gameOver != null)
@@ -151,7 +182,7 @@ public class Health : MonoBehaviour
 
             gameObject.GetComponent<SpriteRenderer>().enabled = false;
             gameObject.GetComponent<PlayerMovement>().enabled = false;
-        }
+        }   
         else
         {
             // =======================================================================
