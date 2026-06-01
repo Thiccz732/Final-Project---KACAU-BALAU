@@ -1,7 +1,8 @@
 using UnityEngine;
 using TMPro;
 using System.Collections; 
-using Unity.Cinemachine; // Wajib ditambahkan untuk mengontrol Cinemachine Virtual Camera (opsional, tapi bagus untuk efek kamera saat Player mati)
+using Unity.Cinemachine; 
+using UnityEngine.SceneManagement; // WAJIB: Ditambahkan agar bisa memanggil fungsi pindah Scene
 
 public class Health : MonoBehaviour
 {
@@ -66,7 +67,7 @@ public class Health : MonoBehaviour
 
         if (currentHealth <= 0)
         {
-            // Jika darah habis, panggil fungsi Die() yang kemarin sudah kita rapihin
+            // Jika darah habis, panggil fungsi Die()
             Die();
         }
     }
@@ -77,6 +78,8 @@ public class Health : MonoBehaviour
         isInvincible = true;
 
         Debug.Log("Player sedang kebal...");
+
+        // Opsional: Kamu bisa tambahkan visual kedip-kedip sprite Player di sini nanti
 
         yield return new WaitForSeconds(invincibilityDuration);
 
@@ -130,35 +133,29 @@ public class Health : MonoBehaviour
     }
 
     void Die()
-{
-    if (isPlayer)
     {
-        Debug.Log("Game Over!");
-
-        GameTimer timer = Object.FindFirstObjectByType<GameTimer>();
-        if (timer != null)
+        if (isPlayer)
         {
-            timer.stopTimer();
+            Debug.Log("Game Over!");
 
-            // =======================================================================
-            // DI SINI: LOGIKA MENYIMPAN REKOR WAKTU BERTAHAN TERLAMA (PLAYERPREFS)
-            // =======================================================================
-            // 1. Ambil total waktu bertahan dari script GameTimer kamu (misal fungsinya GetTotalTime())
-            // Catatan: Jika nama fungsi di script GameTimer-mu bukan GetTotalTime(), 
-            // silakan ganti teks '.GetTotalTime()' di bawah sesuai nama fungsi asli di scriptmu (misal .totalTime atau sejenisnya)
-            float waktuSekarang = timer.GetTotalTime(); 
-            
-            // 2. Ambil rekor tertinggi yang pernah disimpan sebelumnya (default 0 jika belum ada)
-            float rekorLama = PlayerPrefs.GetFloat("BestTime", 0f);
-
-            // 3. Jika waktu bermain sekarang lebih lama dari rekor lama, update memorinya!
-            if (waktuSekarang > rekorLama)
+            GameTimer timer = Object.FindFirstObjectByType<GameTimer>();
+            if (timer != null)
             {
-                PlayerPrefs.SetFloat("BestTime", waktuSekarang);
-                PlayerPrefs.Save(); // Mengunci data agar aman di memori laptop
-                Debug.Log("REKOR BARU BERHASIL DISIMPAN: " + waktuSekarang + " detik!");
+                timer.stopTimer();
+
+                // =======================================================================
+                // LOGIKA MENYIMPAN REKOR WAKTU BERTAHAN TERLAMA (PLAYERPREFS)
+                // =======================================================================
+                float waktuSekarang = timer.GetTotalTime(); 
+                float rekorLama = PlayerPrefs.GetFloat("BestTime", 0f);
+
+                if (waktuSekarang > rekorLama)
+                {
+                    PlayerPrefs.SetFloat("BestTime", waktuSekarang);
+                    PlayerPrefs.Save(); // Mengunci data agar aman di memori laptop
+                    Debug.Log("REKOR BARU BERHASIL DISIMPAN: " + waktuSekarang + " detik!");
+                }
             }
-        }
 
             GameOverManager gameOver = Object.FindFirstObjectByType<GameOverManager>();
             if (gameOver != null)
@@ -186,7 +183,46 @@ public class Health : MonoBehaviour
         else
         {
             // =======================================================================
-            // UTAMA: Memunculkan Animasi Ledakan Tepat di Posisi Musuh Saat Ini
+            // DI SINI: DETEKSI JIKA YANG MATI ADALAH BOS BESAR -> PINDAH SCENE ENDING
+            // =======================================================================
+            if (gameObject.CompareTag("Boss"))
+            {
+                Debug.Log("Bos Hancur! Menyimpan rekor akhir dan pindah ke Ending Scene...");
+
+                // Menghentikan dan mengunci rekor waktu permainan saat sukses menang
+                GameTimer timer = Object.FindFirstObjectByType<GameTimer>();
+                if (timer != null)
+                {
+                    timer.stopTimer();
+                    float waktuAkhir = timer.GetTotalTime();
+                    float rekorLama = PlayerPrefs.GetFloat("BestTime", 0f);
+                    if (waktuAkhir > rekorLama)
+                    {
+                        PlayerPrefs.SetFloat("BestTime", waktuAkhir);
+                        PlayerPrefs.Save();
+                    }
+                }
+
+                // Efek ledakan visual bos sebelum menghilang ke Scene lain (Biar terasa mantap hancurnya)
+                if (explosionEffectPrefab != null)
+                {
+                    Instantiate(explosionEffectPrefab, transform.position, Quaternion.identity);
+                }
+                if (deathSound != null)
+                {
+                    AudioSource.PlayClipAtPoint(deathSound, transform.position);
+                }
+
+                // Setel skala waktu ke normal, lalu muat scene khusus puitis teks-mu
+                Time.timeScale = 1f;
+                SceneManager.LoadScene("EndingScene");
+                
+                Destroy(gameObject);
+                return; // Keluar dari fungsi agar tidak mengeksekusi kode hancur kroco biasa di bawah
+            }
+
+            // =======================================================================
+            // KONDISI NORMAL: JIKA YANG MATI ADALAH KROCO BIASA
             // =======================================================================
             if (explosionEffectPrefab != null)
             {
@@ -194,7 +230,6 @@ public class Health : MonoBehaviour
                 Instantiate(explosionEffectPrefab, transform.position, Quaternion.identity);
             }
 
-            // (Suara ledakan kemarin)
             if (deathSound != null)
             {
                 AudioSource.PlayClipAtPoint(deathSound, transform.position);
