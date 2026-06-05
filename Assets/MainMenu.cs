@@ -30,7 +30,7 @@ public class MainMenu : MonoBehaviour
         // 4. Tampilkan hasilnya ke teks UI (Contoh format hasil: Longest Survive: 02:15)
         if (longestSurviveText != null)
         {
-            longestSurviveText.text = string.Format("Longest Survive: {0:00}:{1:00}", minutes, seconds);
+            longestSurviveText.text = string.Format("{0:00}:{1:00}", minutes, seconds);
         }
     }
 

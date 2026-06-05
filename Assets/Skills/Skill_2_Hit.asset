@@ -1,0 +1,23 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1e92e38df7273fc4681d17aae4ca6471, type: 3}
+  m_Name: Skill_2_Hit
+  m_EditorClassIdentifier: Assembly-CSharp::SkillData
+  namaSkill: Hit
+  deskripsiSkill: Add damage reduce speed
+  ikonSkill: {fileID: -7842640448227346534, guid: f899bb1881dc4374a8c179e2cc76d135, type: 3}
+  sfxSkillAktif: {fileID: 8300000, guid: e775046dc38fe3d4d8fca970727d1eec, type: 3}
+  durasiSkill: 10
+  durasiCooldown: 15
+  bonusSpeed: -2.5
+  bonusDamage: 4
+  pengurangFireRate: 0

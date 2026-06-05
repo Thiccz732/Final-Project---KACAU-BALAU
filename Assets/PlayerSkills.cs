@@ -1,160 +1,126 @@
 using UnityEngine;
+using UnityEngine.UI;
 using System.Collections;
-using TMPro;
 
 public class PlayerSkills : MonoBehaviour
 {
-    [Header("UI Reference")]
-    public TextMeshProUGUI skill1dan2Text;     // Tarik teks UI Skill 1 & 2 ke sini
-    public TextMeshProUGUI skill3CooldownText; // Tarik teks UI Skill 3 ke sini
+    [Header("Slot Skill (Scriptable Objects)")]
+    public SkillData dataSkillSlot1; 
+    public SkillData dataSkillSlot2; 
+    public SkillData dataSkillSlot3; 
 
-    // =======================================================================
-    // TAMBAHAN: Slot Audio Sound Cue untuk Masing-Masing Skill
-    // =======================================================================
-    [Header("Skill Sound Cues")]
-    [Tooltip("Tarik file audio untuk Skill 1 ke sini")]
-    public AudioClip soundSkill1;
-    [Tooltip("Tarik file audio untuk Skill 2 ke sini")]
-    public AudioClip soundSkill2;
-    [Tooltip("Tarik file audio untuk Skill 3 ke sini")]
-    public AudioClip soundSkill3;
+    [Header("UI Image Components (HUD)")]
+    public Image uiImageSlot1;
+    public Image uiImageSlot2;
+    public Image uiImageSlot3;
 
-    // Penanda status internal agar antar skill tidak saling tabrakan
-    private bool isSkillActive = false;
-    private bool isCooldownSkill12 = false;
-    private bool isCooldownSkill3 = false;
+    private PlayerMovement movementScript;
+    private PlayerControl controls; // Menggunakan Input Action Asset yang sama
 
-    // Komponen jembatan untuk mengubah status movement
-    private PlayerMovement movement;
-    private PlayerControl controls;
+    // SAKLAR GLOBAL: Mengunci agar tidak ada 2 skill aktif bersamaan
+    private bool isAnySkillActive = false;
+
+    // Status Cooldown masing-masing slot
+    private bool isCooldownSlot1 = false;
+    private bool isCooldownSlot2 = false;
+    private bool isCooldownSlot3 = false;
 
     void Awake()
     {
-        movement = GetComponent<PlayerMovement>();
+        movementScript = GetComponent<PlayerMovement>();
+
+        // Inisialisasi New Input System
         controls = new PlayerControl();
 
-        // Menghubungkan Input System langsung ke fungsi Coroutine masing-masing skill
-        // Ditambahkan parameter AudioClip di paling belakang agar fungsi tahu suara mana yang harus diputar
-        controls.Player.Skill1.performed += ctx => StartCoroutine(HandleSkill1Dan2(3, 0.5f, "SILVER BULLET", 5f, 5f, soundSkill1));
-        controls.Player.Skill2.performed += ctx => StartCoroutine(HandleSkill1Dan2(1, 2.0f, "HYPER DRIVE", 5f, 5f, soundSkill2));
-        controls.Player.Skill3.performed += ctx => StartCoroutine(HandleSkill3(4.5f, 5f, 15f));
+        // MENGIKAT INPUT EVENT DENGAN VALIDASI PENGAMAN GLOBAL
+        controls.Player.Skill1.started += ctx => CobaGunakanSkill(dataSkillSlot1, isCooldownSlot1, 1);
+        controls.Player.Skill2.started += ctx => CobaGunakanSkill(dataSkillSlot2, isCooldownSlot2, 2);
+        controls.Player.Skill3.started += ctx => CobaGunakanSkill(dataSkillSlot3, isCooldownSlot3, 3);
     }
 
+    // WAJIB DIAKTIFKAN AGAR INPUT SYSTEM AKTIF MEMBACA TOMBOL KEYBOARD
     void OnEnable() => controls.Enable();
     void OnDisable() => controls.Disable();
 
-    // =======================================================================
-    // LOGIKA SKILL 1 & 2 (Manipulasi Damage & Kecepatan Gerak)
-    // =======================================================================
-    IEnumerator HandleSkill1Dan2(int targetDamage, float speedMultiplier, string skillName, float duration, float cooldown, AudioClip skillSound)
+    void Start()
     {
-        if (isSkillActive || isCooldownSkill12 || movement == null) yield break;
-
-        isSkillActive = true;
-
-        // Pemicu suara skill 1 atau skill 2 saat aktif
-        if (skillSound != null)
-        {
-            AudioSource.PlayClipAtPoint(skillSound, transform.position);
-        }
-
-        movement.currentDamage = targetDamage;
-        movement.currentSpeed = movement.baseSpeed * speedMultiplier;
-
-        if (skill1dan2Text != null)
-        {
-            skill1dan2Text.text = skillName + " ACTIVE!";
-            skill1dan2Text.color = Color.cyan;
-        }
-
-        yield return new WaitForSeconds(duration);
-
-        // Kembalikan ke normal
-        movement.currentDamage = movement.baseDamage;
-        movement.currentSpeed = movement.baseSpeed;
-        isSkillActive = false;
-        isCooldownSkill12 = true;
-
-        float timer = cooldown;
-        while (timer > 0)
-        {
-            if (skill1dan2Text != null)
-            {
-                skill1dan2Text.text = skillName + " CD: " + timer.ToString("F1") + "s";
-                skill1dan2Text.color = Color.red;
-            }
-            yield return new WaitForSeconds(0.1f);
-            timer -= 0.1f;
-        }
-
-        isCooldownSkill12 = false;
-        if (skill1dan2Text != null)
-        {
-            skill1dan2Text.text = "READY!";
-            skill1dan2Text.color = Color.green;
-        }
-
-        yield return new WaitForSeconds(1f);
-        if (!isSkillActive && !isCooldownSkill12 && skill1dan2Text != null)
-            skill1dan2Text.text = "";
+        UpdateSkillUI();
     }
 
-    // =======================================================================
-    // LOGIKA KHUSUS SKILL 3 (MACHINE GUN MODE)
-    // =======================================================================
-    IEnumerator HandleSkill3(float fireRateMultiplier, float duration, float cooldown)
+    private void UpdateSkillUI()
     {
-        if (isSkillActive || isCooldownSkill3 || movement == null) yield break;
+        if (dataSkillSlot1 != null && uiImageSlot1 != null) uiImageSlot1.sprite = dataSkillSlot1.ikonSkill;
+        if (dataSkillSlot2 != null && uiImageSlot2 != null) uiImageSlot2.sprite = dataSkillSlot2.ikonSkill;
+        if (dataSkillSlot3 != null && uiImageSlot3 != null) uiImageSlot3.sprite = dataSkillSlot3.ikonSkill;
+    }
 
-        isSkillActive = true;
+    private void CobaGunakanSkill(SkillData skill, bool isCooldown, int slotNumber)
+    {
+        // JIKA ADA SKILL LAIN YANG MASIH AKTIF, LANGSUNG BLOKIR INPUT!
+        if (skill == null || isCooldown || isAnySkillActive) 
+        {
+            Debug.Log($"[Skill System] Input Slot {slotNumber} ditolak. Ada skill aktif atau masih cooldown.");
+            return;
+        }
+
+        StartCoroutine(AktifkanEfekSkill(skill, slotNumber));
+    }
+
+    private IEnumerator AktifkanEfekSkill(SkillData skill, int slotNumber)
+    {
+        // Kunci saklar global & kunci status cooldown slot terpilih
+        isAnySkillActive = true;
+        SetCooldownStatus(slotNumber, true);
         
-        // Pemicu suara khusus Skill 3 saat diaktifkan
-        if (soundSkill3 != null)
+        // Ubah warna UI skill yang ditekan menjadi abu-abu transparan (meredup)
+        SetUIAlphaAndColor(slotNumber, new Color(0.3f, 0.3f, 0.3f, 0.6f));
+
+        // Putar Sound Cue SFX
+        if (skill.sfxSkillAktif != null)
         {
-            AudioSource.PlayClipAtPoint(soundSkill3, transform.position);
+            AudioSource.PlayClipAtPoint(skill.sfxSkillAktif, transform.position);
         }
 
-        // Ubah damage jadi 1 dan percepat tembakan
-        movement.currentDamage = 1;
-        movement.currentFireRate = movement.baseFireRate / fireRateMultiplier;
+        // Terapkan Statistik Bonus/Minus ke Player
+        movementScript.currentSpeed += skill.bonusSpeed;
+        movementScript.currentDamage += skill.bonusDamage;
+        movementScript.currentFireRate -= skill.pengurangFireRate;
 
-        if (skill3CooldownText != null)
-        {
-            skill3CooldownText.text = "MACHINE GUN MODE!";
-            skill3CooldownText.color = Color.yellow;
-        }
+        if (movementScript.currentFireRate < 0.05f) movementScript.currentFireRate = 0.05f;
 
-        Debug.Log("Skill 3 Aktif: Brutal Machine Gun! (Damage berkurang jadi 1)");
+        // --- MASA AKTIF SKILL ---
+        yield return new WaitForSeconds(skill.durasiSkill);
 
-        yield return new WaitForSeconds(duration);
+        // Kembalikan Statistik Player ke Angka Normal
+        movementScript.currentSpeed -= skill.bonusSpeed;
+        movementScript.currentDamage -= skill.bonusDamage;
+        movementScript.currentFireRate += skill.pengurangFireRate;
 
-        // Reset kembali status player ke normal semula after 5 detik
-        movement.currentFireRate = movement.baseFireRate;
-        movement.currentDamage = movement.baseDamage; 
-        isSkillActive = false;
-        isCooldownSkill3 = true;
+        // BUKA SAKLAR GLOBAL: Pemain sekarang sudah boleh memicu skill tipe lain
+        isAnySkillActive = false;
+        Debug.Log($"[Skill System] Efek {skill.namaSkill} selesai. Saklar global terbuka kembali.");
 
-        float timer = cooldown;
-        while (timer > 0)
-        {
-            if (skill3CooldownText != null)
-            {
-                skill3CooldownText.text = "S3 CD: " + timer.ToString("F1") + "s";
-                skill3CooldownText.color = Color.red;
-            }
-            yield return new WaitForSeconds(0.1f);
-            timer -= 0.1f;
-        }
+        // --- MASA COOLDOWN SLOT ---
+        // Slot ini tetap terkunci abu-abu sampai waktu cooldown-nya habis
+        yield return new WaitForSeconds(skill.durasiCooldown);
 
-        isCooldownSkill3 = false;
-        if (skill3CooldownText != null)
-        {
-            skill3CooldownText.text = "S3 READY!";
-            skill3CooldownText.color = Color.green;
-        }
+        SetCooldownStatus(slotNumber, false);
+        
+        // Kembalikan warna UI asli not balok menjadi terang semula
+        SetUIAlphaAndColor(slotNumber, Color.white);
+    }
 
-        yield return new WaitForSeconds(1f);
-        if (!isSkillActive && !isCooldownSkill3 && skill3CooldownText != null)
-            skill3CooldownText.text = "";
+    private void SetCooldownStatus(int slotNumber, bool status)
+    {
+        if (slotNumber == 1) isCooldownSlot1 = status;
+        else if (slotNumber == 2) isCooldownSlot2 = status;
+        else if (slotNumber == 3) isCooldownSlot3 = status;
+    }
+
+    private void SetUIAlphaAndColor(int slotNumber, Color targetColor)
+    {
+        if (slotNumber == 1 && uiImageSlot1 != null) uiImageSlot1.color = targetColor;
+        else if (slotNumber == 2 && uiImageSlot2 != null) uiImageSlot2.color = targetColor;
+        else if (slotNumber == 3 && uiImageSlot3 != null) uiImageSlot3.color = targetColor;
     }
 }

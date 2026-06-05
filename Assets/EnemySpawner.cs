@@ -36,9 +36,8 @@ public class EnemySpawner : MonoBehaviour
     {
         if (bossSpawned) return;
 
-        // Mengecek syarat waktu kemunculan Bos (Misal: Menit ke-10 atau detik ke-600)
-        // Untuk testing, kamu bisa ubah angka 600f ini menjadi 10f (10 detik)
-        if (gameTimer != null && gameTimer.GetTotalTime() >= 10f && !bossSpawned)
+        //Boss spawn
+        if (gameTimer != null && gameTimer.GetTotalTime() >= 600f && !bossSpawned)
         {
             SpawnBossAndClearEnemies();
             return;
@@ -65,8 +64,8 @@ public class EnemySpawner : MonoBehaviour
             if (!IsPosInPlayerView(spawnPos)) found = true;
         }
 
-        // Logika acak kemunculan musuh biasa setelah menit ke-5 (300 detik)
-        if (gameTimer != null && gameTimer.GetTotalTime() >= 5f)
+        //spawn enemy 2
+        if (gameTimer != null && gameTimer.GetTotalTime() >= 300f)
         {
             if (!musicStage2Triggered)
             {
