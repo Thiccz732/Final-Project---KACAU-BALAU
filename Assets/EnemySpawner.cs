@@ -37,7 +37,7 @@ public class EnemySpawner : MonoBehaviour
         if (bossSpawned) return;
 
         //Boss spawn
-        if (gameTimer != null && gameTimer.GetTotalTime() >= 600f && !bossSpawned)
+        if (gameTimer != null && gameTimer.GetTotalTime() >= 120f && !bossSpawned)
         {
             SpawnBossAndClearEnemies();
             return;
@@ -65,7 +65,7 @@ public class EnemySpawner : MonoBehaviour
         }
 
         //spawn enemy 2
-        if (gameTimer != null && gameTimer.GetTotalTime() >= 300f)
+        if (gameTimer != null && gameTimer.GetTotalTime() >= 60f)
         {
             if (!musicStage2Triggered)
             {

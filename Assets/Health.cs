@@ -2,7 +2,7 @@ using UnityEngine;
 using TMPro;
 using System.Collections; 
 using Unity.Cinemachine; 
-using UnityEngine.SceneManagement; // WAJIB: Ditambahkan agar bisa memanggil fungsi pindah Scene
+using UnityEngine.SceneManagement; 
 
 public class Health : MonoBehaviour
 {
@@ -18,7 +18,7 @@ public class Health : MonoBehaviour
     public TextMeshProUGUI healthText;
 
     [Header("I-Frames (Hanya Player)")]
-    public float invincibilityDuration = 1f; // Durasi kebal setelah kena hit
+    public float invincibilityDuration = 1f; 
     private bool isInvincible = false;
 
     [Header("Visual Effects Settings")]
@@ -32,34 +32,26 @@ public class Health : MonoBehaviour
         
         if (isPlayer)
         {
-            // 2. DI SINI: Mencari otomatis objek pengatur gambar sprite UI di arena
             uiController = Object.FindFirstObjectByType<HealthUIController>();
-            
             UpdateUI();
         }
     }
 
     public void TakeDamage(int damage)
     {
-        // Jika sedang masa kebal, jangan kurangi darah
         if (isInvincible) return;
 
         currentHealth -= damage;
-
-        // Proteksi agar darah tidak minus
         if (currentHealth < 0) currentHealth = 0;
 
         if (isPlayer)
         {
             UpdateUI();
             
-            // =======================================================================
-            // DI SINI: PEMICU KAMERA GETAR SAAT PLAYER TERKENA HIT
-            // =======================================================================
             Unity.Cinemachine.CinemachineImpulseSource impulse = GetComponent<Unity.Cinemachine.CinemachineImpulseSource>();
             if (impulse != null)
             {
-                impulse.GenerateImpulse(); // Memancarkan gelombang getar ke kamera
+                impulse.GenerateImpulse(); 
             }
 
             StartCoroutine(BecomeInvincible());
@@ -67,29 +59,21 @@ public class Health : MonoBehaviour
 
         if (currentHealth <= 0)
         {
-            // Jika darah habis, panggil fungsi Die()
             Die();
         }
     }
 
-    // Coroutine untuk membuat player kebal sementara
     private IEnumerator BecomeInvincible()
     {
         isInvincible = true;
-
         Debug.Log("Player sedang kebal...");
-
-        // Opsional: Kamu bisa tambahkan visual kedip-kedip sprite Player di sini nanti
-
         yield return new WaitForSeconds(invincibilityDuration);
-
         isInvincible = false;
         Debug.Log("Masa kebal habis.");
     }
 
     void UpdateUI()
     {
-        // Tetap mempertahankan text bawaan lama kamu agar tidak error
         if (healthText != null)
         {
             healthText.text = "HP: " + currentHealth;
@@ -103,23 +87,16 @@ public class Health : MonoBehaviour
 
     private void OnCollisionEnter2D(Collision2D collision)
     {
-        // Cek jika objek ini adalah Player
         if (isPlayer)
         {
-            // 1. JIKA YANG MENABRAK ADALAH KROCO BIASA
             if (collision.gameObject.CompareTag("Enemy"))
             {
                 TakeDamage(1);
-                Destroy(collision.gameObject); // Kroco langsung hancur saat nyentuh Player
-                Debug.Log("Kroco menabrak Player dan hancur!");
+                Destroy(collision.gameObject); 
             }
-
-            // 2. JIKA YANG MENABRAK ADALAH BOS BESAR
             else if (collision.gameObject.CompareTag("Boss"))
             {
-                TakeDamage(1); // Player tetap kena damage
-                               // KODE DESTROY SENGAJA TIDAK DITULIS AGAR BOS GAK BAKAL ANCUR!
-                Debug.Log("Bos menyenggol Player! Player terluka, tapi Bos tetap hidup.");
+                TakeDamage(1); 
             }
         }
     }
@@ -132,29 +109,39 @@ public class Health : MonoBehaviour
         }
     }
 
-    void Die()
+   void Die()
     {
         if (isPlayer)
         {
-            Debug.Log("Game Over!");
+            Debug.Log("--- CCTV 1: Game Over! Fungsi Die() berhasil dipanggil ---");
 
             GameTimer timer = Object.FindFirstObjectByType<GameTimer>();
+            
             if (timer != null)
             {
-                timer.stopTimer();
-
-                // =======================================================================
-                // LOGIKA MENYIMPAN REKOR WAKTU BERTAHAN TERLAMA (PLAYERPREFS)
-                // =======================================================================
+                Debug.Log("--- CCTV 2: Script GameTimer BERHASIL ditemukan di arena ---");
+                
+                // Ambil waktu dulu sebelum dimatikan
                 float waktuSekarang = timer.GetTotalTime(); 
-                float rekorLama = PlayerPrefs.GetFloat("BestTime", 0f);
+                timer.stopTimer(); 
 
+                float rekorLama = SaveSystem.LoadBestTime(); 
+                Debug.Log($"--- CCTV 3: Waktu Bermain = {waktuSekarang} detik | Rekor JSON = {rekorLama} detik ---");
+
+                // Cek apakah layak jadi rekor baru
                 if (waktuSekarang > rekorLama)
                 {
-                    PlayerPrefs.SetFloat("BestTime", waktuSekarang);
-                    PlayerPrefs.Save(); // Mengunci data agar aman di memori laptop
-                    Debug.Log("REKOR BARU BERHASIL DISIMPAN: " + waktuSekarang + " detik!");
+                    SaveSystem.SaveBestTime(waktuSekarang); 
+                    Debug.Log("--- CCTV 4: SUKSES! REKOR BARU DISIMPAN KE JSON ---");
                 }
+                else
+                {
+                    Debug.Log("--- CCTV 4: GAGAL SAVE. Waktu bermain tidak mengalahkan rekor lama ---");
+                }
+            }
+            else
+            {
+                Debug.LogError("--- CCTV ERROR: Script GameTimer TIDAK DITEMUKAN! Pantas saja tidak bisa save! ---");
             }
 
             GameOverManager gameOver = Object.FindFirstObjectByType<GameOverManager>();
@@ -170,73 +157,47 @@ public class Health : MonoBehaviour
             }
 
             EnemySpawner spawner = Object.FindAnyObjectByType<EnemySpawner>();
-            if (spawner != null)
-            {
-                spawner.enabled = false;
-            }
-
-            Debug.Log("Semua telah dihapus");
+            if (spawner != null) spawner.enabled = false;
 
             gameObject.GetComponent<SpriteRenderer>().enabled = false;
             gameObject.GetComponent<PlayerMovement>().enabled = false;
         }   
         else
         {
-            // =======================================================================
-            // DI SINI: DETEKSI JIKA YANG MATI ADALAH BOS BESAR -> PINDAH SCENE ENDING
-            // =======================================================================
             if (gameObject.CompareTag("Boss"))
             {
                 Debug.Log("Bos Hancur! Menyimpan rekor akhir dan pindah ke Ending Scene...");
 
-                // Menghentikan dan mengunci rekor waktu permainan saat sukses menang
                 GameTimer timer = Object.FindFirstObjectByType<GameTimer>();
                 if (timer != null)
                 {
                     timer.stopTimer();
+                    
+                    // =======================================================
+                    // UPDATE JSON: Simpan Rekor Saat Bos Mati
+                    // =======================================================
                     float waktuAkhir = timer.GetTotalTime();
-                    float rekorLama = PlayerPrefs.GetFloat("BestTime", 0f);
+                    float rekorLama = SaveSystem.LoadBestTime(); // Baca dari JSON
+                    
                     if (waktuAkhir > rekorLama)
                     {
-                        PlayerPrefs.SetFloat("BestTime", waktuAkhir);
-                        PlayerPrefs.Save();
+                        SaveSystem.SaveBestTime(waktuAkhir); // Tulis ke JSON
                     }
                 }
 
-                // Efek ledakan visual bos sebelum menghilang ke Scene lain (Biar terasa mantap hancurnya)
-                if (explosionEffectPrefab != null)
-                {
-                    Instantiate(explosionEffectPrefab, transform.position, Quaternion.identity);
-                }
-                if (deathSound != null)
-                {
-                    AudioSource.PlayClipAtPoint(deathSound, transform.position);
-                }
+                if (explosionEffectPrefab != null) Instantiate(explosionEffectPrefab, transform.position, Quaternion.identity);
+                if (deathSound != null) AudioSource.PlayClipAtPoint(deathSound, transform.position);
 
-                // Setel skala waktu ke normal, lalu muat scene khusus puitis teks-mu
                 Time.timeScale = 1f;
                 SceneManager.LoadScene("EndingScene");
-                
                 Destroy(gameObject);
-                return; // Keluar dari fungsi agar tidak mengeksekusi kode hancur kroco biasa di bawah
+                return; 
             }
 
-            // =======================================================================
-            // KONDISI NORMAL: JIKA YANG MATI ADALAH KROCO BIASA
-            // =======================================================================
-            if (explosionEffectPrefab != null)
-            {
-                // Spawn animasi ledakan di koordinat musuh tanpa mengubah rotasinya (identity)
-                Instantiate(explosionEffectPrefab, transform.position, Quaternion.identity);
-            }
+            if (explosionEffectPrefab != null) Instantiate(explosionEffectPrefab, transform.position, Quaternion.identity);
+            if (deathSound != null) AudioSource.PlayClipAtPoint(deathSound, transform.position);
 
-            if (deathSound != null)
-            {
-                AudioSource.PlayClipAtPoint(deathSound, transform.position);
-            }
-
-            Debug.Log("Musuh Hancur!");
-            Destroy(gameObject); // Tubuh musuh hilang, menyisakan efek ledakan yang berputar
+            Destroy(gameObject); 
         }
     }
 }

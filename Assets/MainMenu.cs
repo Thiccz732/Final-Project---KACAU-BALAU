@@ -1,33 +1,34 @@
 using UnityEngine;
 using UnityEngine.SceneManagement;
-using TMPro; // WAJIB ditambahkan agar bisa mengontrol teks UI TextMeshPro
+using TMPro; 
+using System.Collections; 
 
 public class MainMenu : MonoBehaviour
 {
     [Header("UI Settings")]
-    [Tooltip("Tarik objek Text (TMP) LongestSurviveText dari Canvas ke sini")]
     public TextMeshProUGUI longestSurviveText;
 
-    void Start()
-    {
-        // 1. Ambil data waktu terbaik dari memori PlayerPrefs (yang disimpan pas Player mati)
-        float bestTimeInSeconds = PlayerPrefs.GetFloat("BestTime", 0f);
+    [Header("Audio Delay Settings")]
+    public AudioSource sfxTombolPlay;
+    public AudioSource sfxTombolQuit;
+    public float jedaPindahScene = 0.4f; 
 
-        // 2. Jika belum ada rekor sama sekali (pemain baru)
+   void Start()
+    {
+        // =======================================================
+        // UPDATE JSON: Ambil data waktu terbaik dari JSON
+        // =======================================================
+        float bestTimeInSeconds = SaveSystem.LoadBestTime();
+
         if (bestTimeInSeconds <= 0f)
         {
-            if (longestSurviveText != null)
-            {
-                longestSurviveText.text = "Longest Survive: -- : --";
-            }
+            if (longestSurviveText != null) longestSurviveText.text = "00:00"; 
             return;
         }
 
-        // 3. Konversi data detik menjadi hitungan Menit dan Detik yang rapi
         int minutes = Mathf.FloorToInt(bestTimeInSeconds / 60f);
         int seconds = Mathf.FloorToInt(bestTimeInSeconds % 60f);
 
-        // 4. Tampilkan hasilnya ke teks UI (Contoh format hasil: Longest Survive: 02:15)
         if (longestSurviveText != null)
         {
             longestSurviveText.text = string.Format("{0:00}:{1:00}", minutes, seconds);
@@ -36,23 +37,38 @@ public class MainMenu : MonoBehaviour
 
     public void StartGame()
     {
-        SceneManager.LoadScene("SampleScene");
+        StartCoroutine(AlurPindahSceneDenganSuara());
+    }
+
+    private IEnumerator AlurPindahSceneDenganSuara()
+    {
+        if (sfxTombolPlay != null) sfxTombolPlay.Play();
+        yield return new WaitForSeconds(jedaPindahScene);
+        SceneManager.LoadScene("SampleScene"); 
     }
 
     public void ExitGame()
     {
-        Debug.Log("Game Keluar");
-        Application.Quit();
+        StartCoroutine(AlurKeluarGameDenganSuara());
     }
 
-    // OPSIONAL: Fungsi tambahan jika nanti kamu butuh tombol khusus buat menghapus rekor kembali ke nol
+    private IEnumerator AlurKeluarGameDenganSuara()
+    {
+        if (sfxTombolQuit != null) sfxTombolQuit.Play();
+        yield return new WaitForSeconds(jedaPindahScene);
+        Application.Quit(); 
+    }
+
     public void ResetRecord()
     {
-        PlayerPrefs.DeleteKey("BestTime");
+        // =======================================================
+        // UPDATE JSON: Hapus file JSON fisik dari laptop
+        // =======================================================
+        SaveSystem.ResetData();
+        
         if (longestSurviveText != null)
         {
-            longestSurviveText.text = "Longest Survive: -- : --";
+            longestSurviveText.text = "00:00";
         }
-        Debug.Log("Rekor waktu telah di-reset!");
     }
 }
