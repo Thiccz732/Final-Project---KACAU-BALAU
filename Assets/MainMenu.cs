@@ -13,7 +13,7 @@ public class MainMenu : MonoBehaviour
     public AudioSource sfxTombolQuit;
     public float jedaPindahScene = 0.4f; 
 
-   void Start()
+    void Start()
     {
         // =======================================================
         // UPDATE JSON: Ambil data waktu terbaik dari JSON
