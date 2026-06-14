@@ -5,23 +5,23 @@ public class PlayerMovement : MonoBehaviour
 {
     [Header("Movement Settings")]
     public float baseSpeed = 5f;
-    [HideInInspector] public float currentSpeed; 
+    [HideInInspector] public float currentSpeed;
 
     [Header("Combat Settings")]
     public GameObject bulletPrefab;
     public Transform shootPoint;
     public int baseDamage = 2;
-    [HideInInspector] public int currentDamage;   
+    [HideInInspector] public int currentDamage;
 
     [Header("Fire Rate Settings")]
     public float baseFireRate = 0.4f;
-    [HideInInspector] public float currentFireRate; 
+    [HideInInspector] public float currentFireRate;
     private float nextFireTime;
     private bool isAttackPressed = false;
 
     [Header("Visual & Animation Settings")]
     [Tooltip("Tarik objek anak 'VisualKarakter' dari Hierarchy ke kolom ini")]
-    public Transform visualKarakterTransform; 
+    public Transform visualKarakterTransform;
     private Animator anim;
 
     private Rigidbody2D rb;
@@ -29,7 +29,8 @@ public class PlayerMovement : MonoBehaviour
     private Vector2 moveInput; // Menyimpan live feed arah jalan
 
     [Header("Audio Settings")]
-    public AudioClip sfxTembakan;      // Slot untuk file mp3/wav suara tembakan
+    // SEKARANG BERUBAH MENJADI ARRAY [] UNTUK MENAMPUNG BANYAK NADA
+    public AudioClip[] sfxTembakan;    // Slot untuk file-file audio suara tembakan (bisa diisi 3 nada berbeda)
     public AudioSource audioSource;    // Mulut yang akan membunyikan suaranya
 
     void Awake()
@@ -50,10 +51,7 @@ public class PlayerMovement : MonoBehaviour
         // =======================================================================
         // ADAPTASI VIDEO: MENGIKAT INPUT JALAN KE SISTEM ANIMASI (CALLBACK)
         // =======================================================================
-        // Saat tombol WASD mulai ditekan atau sedang ditekan
         controls.Player.Move.performed += ctx => ProcessMovementInput(ctx);
-        
-        // Saat tombol WASD dilepas total (sprung back to center)
         controls.Player.Move.canceled += ctx => CancelMovementInput(ctx);
     }
 
@@ -73,41 +71,30 @@ public class PlayerMovement : MonoBehaviour
 
     void FixedUpdate()
     {
-        // Fisika pergerakan konstan membaca live feed moveInput
         rb.linearVelocity = moveInput * currentSpeed;
     }
 
-    // Fungsi pembantu saat mendeteksi ada input jalan aktif
     private void ProcessMovementInput(InputAction.CallbackContext context)
     {
         moveInput = context.ReadValue<Vector2>();
 
         if (anim != null)
         {
-            // Set parameter boolean IsWalking menjadi true
             anim.SetBool("IsWalking", true);
-
-            // Kirim live feed arah pergerakan ke parameter Blend Tree
             anim.SetFloat("InputX", moveInput.x);
             anim.SetFloat("InputY", moveInput.y);
         }
     }
 
-    // Fungsi pembantu saat tombol dilepas (Sesuai dengan logika context.canceled di video)
     private void CancelMovementInput(InputAction.CallbackContext context)
     {
         if (anim != null)
         {
-            // Matikan animasi berjalan
             anim.SetBool("IsWalking", false);
-
-            // Ambil arah input terakhir TEPAT sebelum di-reset menjadi 0, 
-            // lalu simpan ke parameter LastInputX & LastInputY milik Blend Tree Idle
             anim.SetFloat("LastInputX", moveInput.x);
             anim.SetFloat("LastInputY", moveInput.y);
         }
 
-        // Reset total kecepatan fisik menjadi nol
         moveInput = Vector2.zero;
     }
 
@@ -123,7 +110,6 @@ public class PlayerMovement : MonoBehaviour
             shootPoint.rotation = Quaternion.Euler(0f, 0f, shootAngle);
         }
 
-        // Mekanisme membalik badan (Kiri/Kanan) mengikuti posisi kursor Mouse di layar
         if (visualKarakterTransform != null)
         {
             if (mouseWorldPos.x > transform.position.x)
@@ -141,7 +127,6 @@ public class PlayerMovement : MonoBehaviour
     {
         if (bulletPrefab != null && shootPoint != null)
         {
-            // Logika spawn peluru bawaanmu
             GameObject bulletObj = Instantiate(bulletPrefab, shootPoint.position, shootPoint.rotation);
             Bullet bulletScript = bulletObj.GetComponent<Bullet>();
 
@@ -151,13 +136,16 @@ public class PlayerMovement : MonoBehaviour
             }
 
             // ========================================================
-            // BARIS BARU: Putar suara tembakan saat peluru keluar
+            // LOGIKA BARU: MEMILIH NADA SECARA RANDOM
             // ========================================================
-            if (sfxTembakan != null && audioSource != null)
+            if (sfxTembakan != null && sfxTembakan.Length > 0 && audioSource != null)
             {
-                // PlayOneShot membuat suaranya bisa bertumpuk walau ditekan berkali-kali dengan cepat
-                audioSource.PlayOneShot(sfxTembakan);
+                // Memilih index acak dari isi array sfxTembakan
+                int randomIndex = Random.Range(0, sfxTembakan.Length);
+
+                // Mainkan suara terpilih tanpa memutus suara yang sedang berjalan
+                audioSource.PlayOneShot(sfxTembakan[randomIndex]);
             }
         }
     }
-}
+}   
