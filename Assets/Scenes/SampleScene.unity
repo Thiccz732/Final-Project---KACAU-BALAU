@@ -2112,8 +2112,8 @@ MonoBehaviour:
   enemyPrefab: {fileID: 1584720663671794755, guid: e469325b7ba083641b39995b2b9f1b3d, type: 3}
   enemyPrefab2: {fileID: 4308833341588829509, guid: 56887a81b15558d418b8793e912db850, type: 3}
   bossPrefab: {fileID: 5705915364509739057, guid: 28208eea5de8ae7468245a3362214903, type: 3}
-  waktuSpawnEnemy2: 20
-  waktuSpawnBoss: 50
+  waktuSpawnEnemy2: 60
+  waktuSpawnBoss: 120
   spawnRate: 2
   minSpawnDistance: 12
   maxSpawnDistance: 18
