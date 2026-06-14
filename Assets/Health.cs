@@ -138,7 +138,7 @@ public class Health : MonoBehaviour
         {
             Debug.Log("--- CCTV 1: Game Over! Fungsi Die() berhasil dipanggil ---");
 
-            // MAINKAN SUARA MATI PLAYER
+            // MAINKAN SUARA MATI PLAYERw
             if (deathSound != null && audioSource != null)
             {
                 audioSource.PlayOneShot(deathSound);
