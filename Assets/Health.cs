@@ -13,7 +13,7 @@ public class Health : MonoBehaviour
     [Header("Audio Settings")]
     public AudioClip deathSound;
     // =======================================================================
-    // BARIS BARU: ARRAY UNTUK SUARA TERKENA DAMAGE & SLOT AUDIO SOURCE
+    // ARRAY UNTUK SUARA TERKENA DAMAGE & SLOT AUDIO SOURCE
     // =======================================================================
     public AudioClip[] sfxHurt;        // Menyimpan banyak variasi suara erangan sakit
     public AudioSource audioSource;    // Komponen utama pemutar suara pada objek ini
@@ -49,6 +49,12 @@ public class Health : MonoBehaviour
         currentHealth -= damage;
         if (currentHealth < 0) currentHealth = 0;
 
+        // =======================================================================
+        // DIUBAH: SEKARANG BERADA DI LUAR 'if (isPlayer)'
+        // Player maupun Boss/Enemy akan memutar suara acak saat terkena damage
+        // =======================================================================
+        PutarSuaraHurtRandom();
+
         if (isPlayer)
         {
             UpdateUI();
@@ -58,9 +64,6 @@ public class Health : MonoBehaviour
             {
                 impulse.GenerateImpulse();
             }
-
-            // PANGGIL LOGIKA SUARA SAKIT RANDOM DISINI
-            PutarSuaraHurtRandom();
 
             StartCoroutine(BecomeInvincible());
         }
@@ -72,7 +75,7 @@ public class Health : MonoBehaviour
     }
 
     // =======================================================================
-    // FUNGSI BARU: MEMILIH NADA ERANGAN SAKIT SECARA ACAK
+    // FUNGSI MEMILIH NADA ERANGAN SAKIT SECARA ACAK
     // =======================================================================
     private void PutarSuaraHurtRandom()
     {
@@ -135,7 +138,7 @@ public class Health : MonoBehaviour
         {
             Debug.Log("--- CCTV 1: Game Over! Fungsi Die() berhasil dipanggil ---");
 
-            // MAINKAN SUARA MATI PLAYERww
+            // MAINKAN SUARA MATI PLAYER
             if (deathSound != null && audioSource != null)
             {
                 audioSource.PlayOneShot(deathSound);
