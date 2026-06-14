@@ -7,6 +7,12 @@ public class EnemySpawner : MonoBehaviour
     public GameObject enemyPrefab2;     // Musuh kedua (Penembak)
     public GameObject bossPrefab;       // TAMBAHAN: Prefab Musuh Bos
 
+    [Header("Waktu Kemunculan (Detik)")]
+    [Tooltip("Waktu kapan musuh penembak mulai ikut muncul")]
+    public float waktuSpawnEnemy2 = 10f; 
+    [Tooltip("Waktu kapan bos besar muncul dan menyapu kroco")]
+    public float waktuSpawnBoss = 50f;   
+
     [Header("Settings Agresif")]
     public float spawnRate = 0.5f;
     private float nextSpawnTime;
@@ -36,8 +42,9 @@ public class EnemySpawner : MonoBehaviour
     {
         if (bossSpawned) return;
 
-        //Boss spawn
-        if (gameTimer != null && gameTimer.GetTotalTime() >= 120f && !bossSpawned)
+        // Boss spawn
+        // MENGGUNAKAN VARIABEL PUBLIC waktuSpawnBoss
+        if (gameTimer != null && gameTimer.GetTotalTime() >= waktuSpawnBoss && !bossSpawned)
         {
             SpawnBossAndClearEnemies();
             return;
@@ -64,8 +71,9 @@ public class EnemySpawner : MonoBehaviour
             if (!IsPosInPlayerView(spawnPos)) found = true;
         }
 
-        //spawn enemy 2
-        if (gameTimer != null && gameTimer.GetTotalTime() >= 60f)
+        // Spawn enemy 2
+        // MENGGUNAKAN VARIABEL PUBLIC waktuSpawnEnemy2
+        if (gameTimer != null && gameTimer.GetTotalTime() >= waktuSpawnEnemy2)
         {
             if (!musicStage2Triggered)
             {

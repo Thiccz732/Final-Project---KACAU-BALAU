@@ -141,7 +141,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ed20ac56f8d026b439beeea630dd867c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Health
-  maxHealth: 4
+  maxHealth: 150
   deathSound: {fileID: 8300000, guid: 7197bc63b068e784293b1ff14fe603f9, type: 3}
   sfxHurt:
   - {fileID: 8300000, guid: 7197bc63b068e784293b1ff14fe603f9, type: 3}

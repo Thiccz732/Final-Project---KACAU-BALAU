@@ -10,6 +10,8 @@ public class EnemyShooterAI : MonoBehaviour
     public GameObject enemyBulletPrefab; 
     public Transform shootPoint;        
     public float fireRate = 2f;          
+    public float bulletSpeed = 10f;
+    public float bulletLifeTime = 5f;
 
     [Header("Target Settings")]
     [Tooltip("Tarik objek Player dari Hierarchy ke kolom ini")]
@@ -28,7 +30,6 @@ public class EnemyShooterAI : MonoBehaviour
     {
         rb = GetComponent<Rigidbody2D>();
 
-    
         if (player == null)
         {
             GameObject playerObj = GameObject.FindWithTag("Player");
@@ -42,7 +43,7 @@ public class EnemyShooterAI : MonoBehaviour
             }
         }
 
- // Border
+        // Border
         GameObject leftObj = GameObject.Find("Left");
         if (leftObj != null) borderLeft = leftObj.transform;
 
@@ -92,7 +93,8 @@ public class EnemyShooterAI : MonoBehaviour
                 fireTimer = 0f; // Reset timer setelah menembak
             }
         }
-//Kunci border
+
+        // Kunci border
         if (borderLeft != null && borderRight != null && borderTop != null && borderDown != null)
         {
             // Mengunci posisi musuh penembak murni di antara koordinat global tembok pembatas
@@ -126,9 +128,16 @@ public class EnemyShooterAI : MonoBehaviour
     {
         if (enemyBulletPrefab != null && shootPoint != null)
         {
-            // Instansiasi peluru tepat di posisi dan arah rotasi ShootPoint yang sedang membidik
-            Instantiate(enemyBulletPrefab, shootPoint.position, shootPoint.rotation);
-            Debug.Log("Musuh kedua menembak dengan akurat!");
+            GameObject bulletObj = Instantiate(enemyBulletPrefab, shootPoint.position, shootPoint.rotation);
+            Rigidbody2D bulletRb = bulletObj.GetComponent<Rigidbody2D>();
+            
+            if (bulletRb != null)
+            {
+                bulletRb.linearVelocity = shootPoint.right * bulletSpeed;
+            }
+
+            // UBAH BARIS INI: Ganti 3f menjadi variabel bulletLifeTime
+            Destroy(bulletObj, bulletLifeTime); 
         }
     }
 }
