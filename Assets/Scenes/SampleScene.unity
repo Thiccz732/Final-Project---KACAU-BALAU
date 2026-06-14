@@ -3834,7 +3834,10 @@ MonoBehaviour:
   baseFireRate: 0.4
   currentFireRate: 0
   visualKarakterTransform: {fileID: 1039670810}
-  sfxTembakan: {fileID: 8300000, guid: da8c4fc5f3077f447a0afb8c4c226776, type: 3}
+  sfxTembakan:
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
   audioSource: {fileID: 1654416085}
 --- !u!114 &1654416081
 MonoBehaviour:
@@ -3850,6 +3853,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Health
   maxHealth: 10
   deathSound: {fileID: 0}
+  sfxHurt:
+  - {fileID: 8300000, guid: 9bc4e955ba146c6459055d9d1e5098c9, type: 3}
+  - {fileID: 8300000, guid: a9c193c0a1ca03a48b5b20e66719909d, type: 3}
+  - {fileID: 8300000, guid: 8814ffa7dffff0e4da40aae0e490cba0, type: 3}
+  audioSource: {fileID: 0}
   isPlayer: 1
   healthText: {fileID: 0}
   invincibilityDuration: 0.5
