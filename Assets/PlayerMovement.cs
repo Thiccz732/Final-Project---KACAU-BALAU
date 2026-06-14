@@ -28,6 +28,10 @@ public class PlayerMovement : MonoBehaviour
     private PlayerControl controls;
     private Vector2 moveInput; // Menyimpan live feed arah jalan
 
+    [Header("Audio Settings")]
+    public AudioClip sfxTembakan;      // Slot untuk file mp3/wav suara tembakan
+    public AudioSource audioSource;    // Mulut yang akan membunyikan suaranya
+
     void Awake()
     {
         rb = GetComponent<Rigidbody2D>();
@@ -137,12 +141,22 @@ public class PlayerMovement : MonoBehaviour
     {
         if (bulletPrefab != null && shootPoint != null)
         {
+            // Logika spawn peluru bawaanmu
             GameObject bulletObj = Instantiate(bulletPrefab, shootPoint.position, shootPoint.rotation);
             Bullet bulletScript = bulletObj.GetComponent<Bullet>();
 
             if (bulletScript != null)
             {
                 bulletScript.damage = currentDamage;
+            }
+
+            // ========================================================
+            // BARIS BARU: Putar suara tembakan saat peluru keluar
+            // ========================================================
+            if (sfxTembakan != null && audioSource != null)
+            {
+                // PlayOneShot membuat suaranya bisa bertumpuk walau ditekan berkali-kali dengan cepat
+                audioSource.PlayOneShot(sfxTembakan);
             }
         }
     }

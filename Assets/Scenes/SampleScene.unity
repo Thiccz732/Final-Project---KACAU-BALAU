@@ -3849,7 +3849,7 @@ MonoBehaviour:
   deathSound: {fileID: 0}
   isPlayer: 1
   healthText: {fileID: 0}
-  invincibilityDuration: 1
+  invincibilityDuration: 0.5
   explosionEffectPrefab: {fileID: 0}
 --- !u!114 &1654416082
 MonoBehaviour:
