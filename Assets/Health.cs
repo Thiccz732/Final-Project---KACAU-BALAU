@@ -1,24 +1,29 @@
 using UnityEngine;
 using TMPro;
-using System.Collections; 
-using Unity.Cinemachine; 
-using UnityEngine.SceneManagement; 
+using System.Collections;
+using Unity.Cinemachine;
+using UnityEngine.SceneManagement;
 
 public class Health : MonoBehaviour
 {
     [Header("Statistik Darah")]
-    public int maxHealth = 10; 
+    public int maxHealth = 10;
     private int currentHealth;
 
     [Header("Audio Settings")]
     public AudioClip deathSound;
+    // =======================================================================
+    // BARIS BARU: ARRAY UNTUK SUARA TERKENA DAMAGE & SLOT AUDIO SOURCE
+    // =======================================================================
+    public AudioClip[] sfxHurt;        // Menyimpan banyak variasi suara erangan sakit
+    public AudioSource audioSource;    // Komponen utama pemutar suara pada objek ini
 
     [Header("Settings")]
     public bool isPlayer;
     public TextMeshProUGUI healthText;
 
     [Header("I-Frames (Hanya Player)")]
-    public float invincibilityDuration = 1f; 
+    public float invincibilityDuration = 1f;
     private bool isInvincible = false;
 
     [Header("Visual Effects Settings")]
@@ -29,7 +34,7 @@ public class Health : MonoBehaviour
     void Start()
     {
         currentHealth = maxHealth;
-        
+
         if (isPlayer)
         {
             uiController = Object.FindFirstObjectByType<HealthUIController>();
@@ -47,12 +52,15 @@ public class Health : MonoBehaviour
         if (isPlayer)
         {
             UpdateUI();
-            
+
             Unity.Cinemachine.CinemachineImpulseSource impulse = GetComponent<Unity.Cinemachine.CinemachineImpulseSource>();
             if (impulse != null)
             {
-                impulse.GenerateImpulse(); 
+                impulse.GenerateImpulse();
             }
+
+            // PANGGIL LOGIKA SUARA SAKIT RANDOM DISINI
+            PutarSuaraHurtRandom();
 
             StartCoroutine(BecomeInvincible());
         }
@@ -60,6 +68,18 @@ public class Health : MonoBehaviour
         if (currentHealth <= 0)
         {
             Die();
+        }
+    }
+
+    // =======================================================================
+    // FUNGSI BARU: MEMILIH NADA ERANGAN SAKIT SECARA ACAK
+    // =======================================================================
+    private void PutarSuaraHurtRandom()
+    {
+        if (sfxHurt != null && sfxHurt.Length > 0 && audioSource != null)
+        {
+            int randomIndex = Random.Range(0, sfxHurt.Length);
+            audioSource.PlayOneShot(sfxHurt[randomIndex]);
         }
     }
 
@@ -92,11 +112,11 @@ public class Health : MonoBehaviour
             if (collision.gameObject.CompareTag("Enemy"))
             {
                 TakeDamage(1);
-                Destroy(collision.gameObject); 
+                Destroy(collision.gameObject);
             }
             else if (collision.gameObject.CompareTag("Boss"))
             {
-                TakeDamage(1); 
+                TakeDamage(1);
             }
         }
     }
@@ -109,29 +129,33 @@ public class Health : MonoBehaviour
         }
     }
 
-   void Die()
+    void Die()
     {
         if (isPlayer)
         {
             Debug.Log("--- CCTV 1: Game Over! Fungsi Die() berhasil dipanggil ---");
 
+            // MAINKAN SUARA MATI PLAYER
+            if (deathSound != null && audioSource != null)
+            {
+                audioSource.PlayOneShot(deathSound);
+            }
+
             GameTimer timer = Object.FindFirstObjectByType<GameTimer>();
-            
+
             if (timer != null)
             {
                 Debug.Log("--- CCTV 2: Script GameTimer BERHASIL ditemukan di arena ---");
-                
-                // Ambil waktu dulu sebelum dimatikan
-                float waktuSekarang = timer.GetTotalTime(); 
-                timer.stopTimer(); 
 
-                float rekorLama = SaveSystem.LoadBestTime(); 
+                float waktuSekarang = timer.GetTotalTime();
+                timer.stopTimer();
+
+                float rekorLama = SaveSystem.LoadBestTime();
                 Debug.Log($"--- CCTV 3: Waktu Bermain = {waktuSekarang} detik | Rekor JSON = {rekorLama} detik ---");
 
-                // Cek apakah layak jadi rekor baru
                 if (waktuSekarang > rekorLama)
                 {
-                    SaveSystem.SaveBestTime(waktuSekarang); 
+                    SaveSystem.SaveBestTime(waktuSekarang);
                     Debug.Log("--- CCTV 4: SUKSES! REKOR BARU DISIMPAN KE JSON ---");
                 }
                 else
@@ -161,7 +185,7 @@ public class Health : MonoBehaviour
 
             gameObject.GetComponent<SpriteRenderer>().enabled = false;
             gameObject.GetComponent<PlayerMovement>().enabled = false;
-        }   
+        }
         else
         {
             if (gameObject.CompareTag("Boss"))
@@ -172,16 +196,13 @@ public class Health : MonoBehaviour
                 if (timer != null)
                 {
                     timer.stopTimer();
-                    
-                    // =======================================================
-                    // UPDATE JSON: Simpan Rekor Saat Bos Mati
-                    // =======================================================
+
                     float waktuAkhir = timer.GetTotalTime();
-                    float rekorLama = SaveSystem.LoadBestTime(); // Baca dari JSON
-                    
+                    float rekorLama = SaveSystem.LoadBestTime();
+
                     if (waktuAkhir > rekorLama)
                     {
-                        SaveSystem.SaveBestTime(waktuAkhir); // Tulis ke JSON
+                        SaveSystem.SaveBestTime(waktuAkhir);
                     }
                 }
 
@@ -191,13 +212,13 @@ public class Health : MonoBehaviour
                 Time.timeScale = 1f;
                 SceneManager.LoadScene("EndingScene");
                 Destroy(gameObject);
-                return; 
+                return;
             }
 
             if (explosionEffectPrefab != null) Instantiate(explosionEffectPrefab, transform.position, Quaternion.identity);
             if (deathSound != null) AudioSource.PlayClipAtPoint(deathSound, transform.position);
 
-            Destroy(gameObject); 
+            Destroy(gameObject);
         }
     }
 }
