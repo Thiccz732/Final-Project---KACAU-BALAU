@@ -3835,9 +3835,9 @@ MonoBehaviour:
   currentFireRate: 0
   visualKarakterTransform: {fileID: 1039670810}
   sfxTembakan:
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
+  - {fileID: 8300000, guid: fc233b36265f71648a8ba85310343288, type: 3}
+  - {fileID: 8300000, guid: 4db52baa8ae7efb47b8577439525ee07, type: 3}
+  - {fileID: 8300000, guid: df40328b1c26f8244af24bdb81e61cb1, type: 3}
   audioSource: {fileID: 1654416085}
 --- !u!114 &1654416081
 MonoBehaviour:
@@ -3857,7 +3857,7 @@ MonoBehaviour:
   - {fileID: 8300000, guid: 9bc4e955ba146c6459055d9d1e5098c9, type: 3}
   - {fileID: 8300000, guid: a9c193c0a1ca03a48b5b20e66719909d, type: 3}
   - {fileID: 8300000, guid: 8814ffa7dffff0e4da40aae0e490cba0, type: 3}
-  audioSource: {fileID: 0}
+  audioSource: {fileID: 1654416085}
   isPlayer: 1
   healthText: {fileID: 0}
   invincibilityDuration: 0.5
